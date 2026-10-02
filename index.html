@@ -212,8 +212,8 @@ table.axes{width:100%;border-collapse:collapse;font-size:.9rem}
    1. 설정 — 여기만 고치면 됩니다
    ========================================================= */
 const CONFIG = {
-  SUPABASE_URL: "https://olyxvjdymtivjzfyyzat.supabase.co",        // 예: "https://xxxx.supabase.co"  (비워 두면 이 기기 브라우저에만 저장)
-  SUPABASE_ANON_KEY: "sb_publishable_ZBPLH3OfB_c7ueg2Xe7IOg_ua0QsNZh",   // Supabase > Project Settings > API > anon public key
+  SUPABASE_URL: "",        // 예: "https://xxxx.supabase.co"  (비워 두면 이 기기 브라우저에만 저장)
+  SUPABASE_ANON_KEY: "",   // Supabase > Project Settings > API > anon public key
   START_DATE: "2026-10-02",
   EXAM_DATE: "2026-10-24",
   EXAM_MINUTES: 50,        // 실제 필답고사 시간을 확인해서 바꾸세요 (답안 타이머 목표)
@@ -793,10 +793,10 @@ function viewIvCards(){
 
 function viewLogin(){
   return `<div class="login"><h1>필답·면접 준비</h1>
-    <p class="hint">이메일로 받은 로그인 링크를 누르면 어느 기기에서든 같은 기록을 볼 수 있어요.</p>
-    <label class="field" style="margin-top:16px">이메일<input id="email" type="email" autocomplete="email"></label>
-    <div class="row"><button class="btn" data-act="send-link">로그인 링크 보내기</button></div>
-    ${ui.linkSent ? `<p class="hint">메일함에서 링크를 눌러 주세요. 링크가 이 주소로 돌아오지 않으면 Supabase의 Redirect URL 설정을 확인하세요.</p>` : ""}</div>`;
+    <p class="hint">Supabase에 만들어 둔 이메일과 비밀번호로 로그인해요. 한 번 로그인하면 이 기기에서는 계속 유지돼요.</p>
+    <label class="field" style="margin-top:16px">이메일<input id="email" type="email" autocomplete="username"></label>
+    <label class="field" style="margin-top:10px">비밀번호<input id="password" type="password" autocomplete="current-password"></label>
+    <div class="row"><button class="btn" data-act="sign-in">로그인</button></div></div>`;
 }
 
 /* =========================================================
@@ -979,10 +979,13 @@ const actions = {
     nextQuestion();
   },
   // 계정
-  async "send-link"(){
-    const email = val("email"); if (!email) return toast("이메일을 적어 주세요");
-    const {error} = await sb.auth.signInWithOtp({email, options: {emailRedirectTo: location.href.split("#")[0]}});
-    if (error) throw error; ui.linkSent = true; render();
+  async "sign-in"(b){
+    const email = val("email"), password = document.getElementById("password").value;
+    if (!email || !password) return toast("이메일과 비밀번호를 모두 적어 주세요");
+    b.disabled = true;
+    const {error} = await sb.auth.signInWithPassword({email, password});
+    b.disabled = false;
+    if (error) return toast(error.message.includes("Invalid") ? "이메일 또는 비밀번호가 맞지 않아요" : "로그인하지 못했어요: " + error.message);
   },
   async "logout"(){ if (!confirm("로그아웃할까요?")) return; await sb.auth.signOut(); }
 };
@@ -1017,7 +1020,8 @@ document.addEventListener("change", e => {
 });
 document.addEventListener("keydown", e => {
   if (e.key !== "Enter" || e.isComposing) return;
-  const el = e.target; if (!el.id || !el.id.startsWith("nt-title-")) return;
+  const el = e.target;
+  if (el.id === "password" || el.id === "email"){ const b = document.querySelector('button[data-act="sign-in"]'); if (b) b.click(); return; } if (!el.id || !el.id.startsWith("nt-title-")) return;
   const b = el.parentElement.querySelector('button[data-act="add-task"]'); if (b) b.click();
 });
 
