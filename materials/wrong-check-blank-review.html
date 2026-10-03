@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>백지 복습 틀 · 교육공학과 수업 (1~11장 완결)</title>
+<title>백지 복습 틀 · 교육공학과 수업 (1~12장 + 오답노트)</title>
 <style>
   :root{--ink:#1c1e26; --sub:#5a5e6b; --line:#e3e0d8; --paper:#fbfaf6; --red:#c0392b; --blue:#1a5fb4;}
   *{box-sizing:border-box;} html{scroll-behavior:smooth;}
@@ -29,8 +29,28 @@
   .mn{color:var(--blue); font-weight:700;}
   .red{color:var(--red); font-weight:600;}
   .tiny{color:#7a7466; font-size:.86em;}
+  .wrong-tracker{display:inline-flex; align-items:center; gap:4px; margin-left:9px;
+    padding:2px 7px; border:1px solid #e7d7d2; border-radius:999px; background:#fff7f4;
+    vertical-align:middle; white-space:nowrap; user-select:none;}
+  .wrong-label{color:#8f3328; font-size:.72em; font-weight:700; letter-spacing:-.02em;}
+  .wrong-dot{width:18px; height:18px; padding:0; border:1.5px solid #c98b82; border-radius:50%;
+    background:#fff; color:transparent; cursor:pointer; vertical-align:middle;
+    transition:transform .12s ease, background-color .12s ease, border-color .12s ease;}
+  .wrong-dot:hover{transform:scale(1.12); border-color:var(--red);}
+  .wrong-dot:focus-visible{outline:2px solid var(--blue); outline-offset:2px;}
+  .wrong-dot.filled{background:var(--red); border-color:var(--red); box-shadow:inset 0 0 0 2px #fff;}
+  .wrong-count{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
+    clip:rect(0,0,0,0); white-space:nowrap; border:0;}
+  .tracker-help{margin-top:6px !important; color:#e6cad0 !important; font-size:.78em !important;}
   footer{color:#98938a; font-size:.8em; text-align:center; margin-top:30px;}
-  @media print{ body{background:#fff;} details{display:none;} section{border:none;} }
+  @media (max-width:560px){
+    .wrong-tracker{display:flex; width:max-content; margin:5px 0 3px;}
+  }
+  @media print{
+    body{background:#fff;} details{display:none;} section{border:none;}
+    .wrong-tracker{border:none; background:transparent; padding:0;}
+    .wrong-dot{print-color-adjust:exact; -webkit-print-color-adjust:exact;}
+  }
 </style>
 </head>
 <body>
@@ -38,7 +58,8 @@
 
 <header>
   <h1>☆ 백지 복습 틀 ☆</h1>
-  <p>교육공학과 수업 (1~11장 완결) | 백지에 써본 뒤 "정답 확인"을 눌러 단권화 원문과 대조</p>
+  <p>교육공학과 수업 (1~12장 + 오답노트) | 백지에 써본 뒤 "정답 확인"을 눌러 단권화 원문과 대조</p>
+  <p class="tracker-help">각 항목의 동그라미를 눌러 오답 횟수를 최대 5회까지 표시할 수 있습니다. 기록은 자동 저장됩니다.</p>
 </header>
 
 <!-- ================= 1 ================= -->
@@ -276,26 +297,6 @@
           <li>구체적. 세분화된 하위요소 제공 → 적용이 쉬움.</li>
           <li><b>확률적</b>. (결정론 X) 목표달성 기회를 증가시킴.</li>
         </ol>
-        <p class="tiny">→ 위 4특징을 제시한 라이겔루스 본인이, 자신의 '정교화 이론'으로 그 조건을 직접 실천함 (아래 항목과 한 서사로 연결)</p>
-      </div></details></li>
-    <li>라이겔루스 — 교수 3대 변인 · 조직전략(미시/거시) · 정교화 이론 7전략
-      <details><summary>정답 확인 (단권화 원문)</summary><div class="a">
-        <p><b>교수 3대 변인</b> <span class="mn">(조방결)</span> : 조건(condition) – 방법(method) – 결과(outcome, <span class="red">효과성·효율성·매력성</span> ← ISD와 같은 개념)</p>
-        <p><b>방법 변인의 하위 4</b> : 조직전략 / 전달전략(매체·자료로 언제 어떻게 제시) / 관리전략(설계~평가 관리)</p>
-        <p><b>조직전략의 두 층위</b> : <b>미시적</b>(하나의 아이디어를 어떻게 조직 — 메릴의 내용요소전시이론) vs <b>거시적</b>(여러 아이디어를 어떤 순서로 — 라이겔루스 정교화 이론 본인 것)</p>
-        <p><b>가네와의 관계</b> : 라이겔루스는 가네의 9사태가 개략적일 뿐 구체적 방법(예: ④자극 제시, ⑤학습안내를 어떻게 할지)을 충분히 제시 못했다고 비판 → 그 공백을 메우려 조직전략을 정교화</p>
-        <p><b>정교화 이론 핵심 이미지</b> : 줌 렌즈 비유(전체 개요를 광각으로 먼저 보여준 뒤 부분을 줌인, 다시 광각으로) + 정수(epitome, 가장 단순·대표적인 최초 개요) + 단순→복잡으로 확대</p>
-        <p class="mn">학, 종, 선, 정, 요, 인, 비, 리!</p>
-        <ol>
-          <li><b>정교화 계열</b>(오늘 배울 것) : 단순(쉬운) → 점점 복잡(어려운). 유형: 개념적·절차적·이론적 정교화</li>
-          <li><b>선행학습 계열</b> : 선행학습 요소를 쉬운 것→어려운 것, 단순→복잡으로 계열화</li>
-          <li><b>요약자</b>(단원 끝) : 학습 내용을 체계적으로 복습하도록 제시</li>
-          <li><b>종합자</b>(오늘 배운 것) : 단일 유형 아이디어들의 관계를 정의·통합</li>
-          <li><b>비유</b>(오늘 배울 것) : 새 아이디어를 학습자에게 친숙한 아이디어와 연관지어 설명</li>
-          <li><b>인지전략 활성자</b> : 다양한 인지전략을 명시적으로 활용하도록 제시</li>
-          <li><b>학습자 통제</b> : 학습자가 자신의 학습에서 선택권·통제력(자율성)을 가짐</li>
-        </ol>
-        <p class="tiny red">※ 출처: 블로그·정리자료 기반(1차 문헌 아님) — 구조·관계 이해용으로 활용, 답안 세부 인용 시 교재 확인 문장(4특징) 우선</p>
       </div></details></li>
     <li>가네의 수업 설계 이론 — 배경? 내적 학습과정 <span class="cnt">(8)</span>과 외적 수업사태 <span class="cnt">(9)</span>의 대응?
       <details><summary>정답 확인 (단권화 원문)</summary><div class="a">
@@ -716,7 +717,286 @@
   </ul>
 </section>
 
-<footer>백지 복습 틀 (1~11장 완결) · 정답은 단권화 노트 원문 및 핵심 뼈대 위주로 정리</footer>
+<!-- ================= 12 ================= -->
+<section>
+  <h2 id="ch12">12. 롸이겔루스 교수설계이론 · 정교화이론</h2>
+  <ul>
+    <li>교수설계이론의 정의 · 학습이론과의 차이
+      <details><summary>정답 확인 (핵심 뼈대)</summary><div class="a">
+        <p><b>교수설계이론</b>은 주어진 <b>교수조건</b>에서 원하는 <b>교수성과</b>를 달성하기 위해 어떤 <b>교수방법</b>을 사용해야 하는지를 처방하는 이론이다.</p>
+        <ul>
+          <li><b>학습이론</b> : 학습이 어떻게 일어나는지를 기술·설명.</li>
+          <li><b>교수설계이론</b> : 학습을 촉진하려면 어떻게 가르쳐야 하는지를 처방.</li>
+          <li>교수방법과 성과의 관계는 절대적·결정적 법칙이 아니라 <b>개연적·상황의존적</b> 관계.</li>
+        </ul>
+      </div></details></li>
+
+    <li>교수설계이론의 세 변인 — 조건 · 방법 · 성과
+      <details><summary>정답 확인 (핵심 뼈대)</summary><div class="a">
+        <p class="mn">조건을 고려해 → 방법을 처방하고 → 효과성·효율성·매력성을 추구</p>
+        <ol>
+          <li><b>교수조건</b> : 교수목표와 내용 특성, 학습자 특성, 교수 상황의 제약조건.</li>
+          <li><b>교수방법</b> : 조직전략, 전달전략, 관리전략.</li>
+          <li><b>교수성과</b> : 효과성, 효율성, 매력성.</li>
+        </ol>
+        <ul>
+          <li><b>효과성</b> : 목표한 학습이 얼마나 달성되었는가.</li>
+          <li><b>효율성</b> : 시간·비용·노력 대비 얼마나 성과를 얻었는가.</li>
+          <li><b>매력성</b> : 학습자가 수업을 얼마나 선호하고 계속 학습하려 하는가.</li>
+        </ul>
+      </div></details></li>
+
+    <li>교수방법 변인 — 조직 · 전달 · 관리전략
+      <details><summary>정답 확인 (핵심 뼈대)</summary><div class="a">
+        <p class="mn">무엇을 어떻게 배열하고 → 어떻게 전달하며 → 언제 어떻게 운영할 것인가</p>
+        <ol>
+          <li><b>조직전략</b> : 학습내용을 어떤 방식과 순서로 조직할 것인가.</li>
+          <li><b>전달전략</b> : 조직된 내용을 어떤 매체와 방식으로 전달하고 학습자가 반응하게 할 것인가.</li>
+          <li><b>관리전략</b> : 조직전략과 전달전략을 언제, 어떻게 활용하고 관리할 것인가.</li>
+        </ol>
+      </div></details></li>
+
+    <li>미시적 조직전략 vs 거시적 조직전략 · 정교화이론의 위치
+      <details><summary>정답 확인 (핵심 뼈대)</summary><div class="a">
+        <ul>
+          <li><b>미시적 조직전략</b> : 하나의 개념·원리·기능을 어떻게 제시하고 연습·피드백할 것인가.</li>
+          <li><b>거시적 조직전략</b> : 여러 개념·원리·기능으로 이루어진 단원이나 과목 전체를 어떤 순서로 조직할 것인가.</li>
+          <li><b>정교화이론</b> : 대표적인 <span class="red">거시적 조직전략</span>.</li>
+        </ul>
+      </div></details></li>
+
+    <li>정교화이론의 정의 · 핵심 원리 · 정수(epitome)
+      <details><summary>정답 확인 (핵심 뼈대)</summary><div class="a">
+        <p><b>정의</b> : 복잡한 학습내용을 단순하고 일반적인 전체 모습에서 시작하여 점차 복잡하고 세부적인 내용으로 정교화하는 거시적 조직전략.</p>
+        <p class="mn">단순한 것에서 복잡한 것으로 · 전체에서 세부로</p>
+        <p><b>정수(epitome)</b> : 전체 내용을 단순히 축약한 요약이 아니라, 이후 학습할 내용을 대표하는 가장 기본적이고 일반적인 전체 모습을 제시한 것.</p>
+        <p class="tiny">전체 지도 보기 → 한 부분 확대 → 전체와 연결 → 다른 부분 확대</p>
+      </div></details></li>
+
+    <li>정교화이론의 7가지 전략
+      <details><summary>정답 확인 (핵심 뼈대)</summary><div class="a">
+        <p class="mn">정·선 / 요·종·비·인 / 학</p>
+        <ol>
+          <li><b>정교화 계열</b> : 단순한 전체에서 복잡한 세부로 계열화.</li>
+          <li><b>선수학습 계열</b> : 새로운 내용을 배우는 데 필요한 선수요소 제시.</li>
+          <li><b>요약자</b> : 이미 학습한 개별 내용을 복습.</li>
+          <li><b>종합자</b> : 여러 내용 사이의 관계를 통합.</li>
+          <li><b>비유</b> : 친숙한 내용으로 새로운 내용을 설명.</li>
+          <li><b>인지전략 활성자</b> : 학습자의 사고·기억·점검 전략 활성화.</li>
+          <li><b>학습자 통제</b> : 학습자가 내용·순서·속도 등을 선택.</li>
+        </ol>
+        <p><b>★ 가장 핵심적인 전략 : 정교화 계열</b></p>
+      </div></details></li>
+
+    <li>가네의 9가지 수업사태와 정교화이론의 관계
+      <details><summary>정답 확인 (핵심 뼈대)</summary><div class="a">
+        <ul>
+          <li><b>정교화이론</b> : 단원·과목 전체의 내용을 어떤 순서로 조직할지 설계.</li>
+          <li><b>가네의 9가지 수업사태</b> : 각 수업에서 학습자의 내적 학습과정을 어떤 외적 수업사태로 지원할지 설계.</li>
+        </ul>
+        <p>⇒ 정교화이론으로 전체 단원을 단순한 것에서 복잡한 것으로 계열화하고, 각 차시에서는 가네의 9가지 수업사태를 적용할 수 있다.</p>
+      </div></details></li>
+
+    <li>롸이겔루스 교수이론의 변화 — 1983 · 1999 · 2009
+      <details><summary>정답 확인 (핵심 뼈대)</summary><div class="a">
+        <p class="mn">83 체계화 → 99 학습자 중심 → 09 공통 지식기반</p>
+        <ol>
+          <li><b>1983</b> : 당시 교수이론의 상태를 체계화하고, ISD 절차모형의 그늘에 가려졌던 교수이론의 중요성을 부각.</li>
+          <li><b>1999</b> : 정보화시대에 적합한 맞춤형·학습자 중심 교수이론과 가치의 중요성을 강조.</li>
+          <li><b>2009</b> : 서로 분리되어 발전하던 교수이론을 연결하기 위해 공통 지식기반과 공통 용어의 구축을 강조.</li>
+        </ol>
+      </div></details></li>
+
+    <li>전체를 한 문단으로 백지 인출하기
+      <details><summary>정답 확인 (최종 압축)</summary><div class="a">
+        <p>롸이겔루스의 교수설계이론은 주어진 교수조건에서 원하는 교수성과를 달성하기 위한 교수방법을 처방한다. 교수방법은 조직·전달·관리전략으로, 교수성과는 효과성·효율성·매력성으로 구분된다. 정교화이론은 여러 학습내용을 단순하고 일반적인 전체에서 복잡하고 세부적인 내용으로 계열화하는 거시적 조직전략이다. 주요 전략은 정교화 계열, 선수학습 계열, 요약자, 종합자, 비유, 인지전략 활성자, 학습자 통제이다.</p>
+      </div></details></li>
+  </ul>
+</section>
+
+<!-- ================= 오답노트 ================= -->
+<section>
+  <h2 id="ch13">오답노트 — Day 9. 행동주의 · 인지주의 · 구성주의</h2>
+  <ul>
+    <li>행동주의의 핵심을 ‘벌’ 중심으로 설명해도 되는가?
+      <details><summary>오답 교정</summary><div class="a">
+        <p><b>혼동</b> : 행동주의를 자극에 대한 반응과 강화·벌의 제공으로만 설명함.</p>
+        <p><b>교정</b> : 행동주의에서 학습은 환경의 자극과 결과에 의해 <b>관찰 가능한 행동이 비교적 지속적으로 변화</b>하는 과정이다. 핵심은 벌 자체가 아니라 <b>강화, 반복, 조형, 작은 단계의 학습, 숙달</b>이다.</p>
+        <p><b>시험 문장</b> : 에듀테크는 학습자의 반응 직후 정오 여부에 따른 즉각적·수반적 피드백과 강화를 제공하고, 학습내용을 작은 단계로 나누어 반복 연습과 개별 속도에 따른 숙달을 지원해야 한다.</p>
+      </div></details></li>
+
+    <li>행동주의가 에듀테크 설계에 주는 시사점 2가지 이상
+      <details><summary>정답 확인 (오답 카드)</summary><div class="a">
+        <ol>
+          <li>학습자의 반응 직후 <b>즉각적이고 수반적인 피드백·강화</b>를 제공한다.</li>
+          <li>학습내용을 <b>작은 단계</b>로 나누어 반복 연습과 점진적 숙달을 지원한다.</li>
+          <li>관찰 가능한 행동목표와 준거를 설정하고 수행 결과를 평가한다.</li>
+          <li>학습자의 수행에 따라 연습량과 난이도를 조절하여 개별 속도 학습과 보충학습을 지원한다.</li>
+        </ol>
+      </div></details></li>
+
+    <li>인지주의의 핵심은 ‘공통점과 차이점의 변별’인가?
+      <details><summary>오답 교정</summary><div class="a">
+        <p><b>혼동</b> : 인지주의 전체를 변별 과정 하나로 축소함.</p>
+        <p><b>교정</b> : 변별은 일부 인지활동일 뿐이다. 인지주의는 학습자가 정보를 <b>주의·지각하고, 작업기억에서 처리하며, 기존 인지구조와 연결하여 부호화·저장하고, 필요할 때 인출</b>하는 내적 정보처리 과정에 초점을 둔다.</p>
+        <p class="mn">주의·선택적 지각 → 작업기억의 처리 → 의미적 부호화와 기존 인지구조의 통합 → 장기기억 저장 → 인출·수행</p>
+      </div></details></li>
+
+    <li>인지주의와 가네의 내적 학습과정 용어를 함께 사용할 때의 주의점
+      <details><summary>오답 교정</summary><div class="a">
+        <p>가네의 내적 학습과정은 인지주의 정보처리 관점에 기초하므로 <b>주의, 선택적 지각, 의미적 부호화, 저장, 인출, 수행</b> 등의 용어를 인지주의 설명에 활용할 수 있다.</p>
+        <p>다만 인지주의의 일반적인 정보처리 과정을 가네가 제시한 <b>정확한 단계와 완전히 동일한 체계</b>라고 단정하지 않는다. 또한 기존 인지구조와의 통합은 저장이 끝난 뒤 별도로 일어나는 것이 아니라, 주로 <b>의미적 부호화 과정에서</b> 이루어진다고 표현한다.</p>
+        <p><b>안전한 시험 문장</b> : 인지주의에서 학습은 새로운 정보가 주의와 선택적 지각을 거쳐 작업기억에서 처리되고, 의미적 부호화를 통해 기존 인지구조와 연결되어 장기기억에 저장되며, 필요할 때 인출되어 수행에 활용되는 과정이다.</p>
+      </div></details></li>
+
+    <li>인지주의가 에듀테크 설계에 주는 시사점 2가지 이상
+      <details><summary>정답 확인 (오답 카드)</summary><div class="a">
+        <ol>
+          <li>작업기억의 용량이 제한되어 있으므로 내용을 분절하고 핵심 신호를 제공하며 불필요한 정보를 줄여 <b>외재적 인지부하</b>를 낮춘다.</li>
+          <li>선수지식과 인지구조를 활성화하고 새로운 정보를 기존 지식과 연결하도록 선행조직자, 비교, 비유 등을 제공한다.</li>
+          <li>인출 연습, 자기설명, 점검 질문 등을 통해 기억의 인출과 <b>메타인지</b>를 촉진한다.</li>
+          <li>AI가 학습자의 사고를 대신 산출하기보다 정보처리와 사고를 지원하는 <b>인지적 도구</b>로 기능하도록 설계한다.</li>
+        </ol>
+      </div></details></li>
+
+    <li>행동 데이터만으로 학습자의 인지상태를 직접 판단해도 되는가?
+      <details><summary>오답 교정</summary><div class="a">
+        <p><b>아니다.</b> 클릭, 정답률, 풀이시간, 시선 등의 행동 데이터는 관찰 자료일 뿐이며, 학습자의 이해·주의·동기 같은 내적 상태는 직접 관찰되지 않는 <b>잠재적 상태</b>이다.</p>
+        <p>따라서 여러 유형의 데이터를 통합하여 잠정적으로 추론하고, 과제 수행과 학습자의 설명, 교사의 질문·관찰 등을 통해 확인해야 한다. 답안에서는 ‘판단하였다’보다 <b>‘가능성을 추론하고 교사가 추가로 확인한다’</b>고 쓴다.</p>
+      </div></details></li>
+
+    <li>구성주의는 개인적 경험에 따른 개별적 지식 구성만을 의미하는가?
+      <details><summary>오답 교정</summary><div class="a">
+        <p><b>혼동</b> : 구성주의를 개인의 경험에 따른 개별적 구성으로만 설명함.</p>
+        <p><b>교정</b> : 구성주의는 학습자의 능동적인 의미 구성뿐 아니라 <b>실제적 맥락, 사회적 상호작용과 의미 협상, 다양한 관점, 성찰</b>을 중시한다.</p>
+        <p><b>시험 문장</b> : 에듀테크는 실제적이고 비구조화된 문제, 다양한 정보 자원과 관점, 협력적 지식 구성 환경을 제공하며, 교사와 AI는 모델링·코칭·스캐폴딩을 제공하는 촉진자 및 인지적 도구의 역할을 해야 한다.</p>
+      </div></details></li>
+
+    <li>맞춤형·개별화 학습이면 모두 구성주의적인가?
+      <details><summary>오답 교정</summary><div class="a">
+        <p><b>아니다.</b> 학습자의 정답률에 따라 반복문제와 즉각적 강화를 제공하는 맞춤형 시스템은 행동주의적으로 설계될 수 있고, 인지부하나 선수지식에 맞게 설명을 조정하는 시스템은 인지주의적으로 설계될 수 있다.</p>
+        <p>맞춤형 학습이 구성주의적이려면 학습자에게 단순히 다른 난이도를 제공하는 것을 넘어 <b>문제·자료·전략에 대한 선택권, 실제적 문제해결, 사회적 협력, 의미 구성과 성찰</b>을 지원해야 한다.</p>
+      </div></details></li>
+
+    <li>학습이론의 설명이 교수설계 처방으로 연결되는 원리
+      <details><summary>오답 교정</summary><div class="a">
+        <p><b>혼동</b> : 체제적 설계와 평가·환류의 필요성만 설명하고, 학습이론에서 교수방법이 도출되는 직접적인 논리를 생략함.</p>
+        <p><b>교정</b> : 학습이론은 학습이 일어나는 기제와 조건을 <b>기술·설명</b>하고, 교수설계이론은 그 설명을 근거로 학습을 촉진할 교수방법을 <b>처방</b>한다.</p>
+        <ul>
+          <li>작업기억의 용량이 제한됨 → 내용을 분절하고 불필요한 정보를 제거한다.</li>
+          <li>반응 뒤의 강화가 행동 형성에 영향을 줌 → 즉각적이고 수반적인 피드백을 제공한다.</li>
+          <li>실제 맥락과 사회적 의미 협상 속에서 지식을 구성함 → 실제적 문제와 협력활동을 제공한다.</li>
+        </ul>
+      </div></details></li>
+
+    <li>Day 9 최종 백지 인출 카드
+      <details><summary>정답 확인 (30초 압축)</summary><div class="a">
+        <p><b>행동주의</b> : 관찰 가능한 행동 변화 — 즉각적·수반적 피드백과 강화, 작은 단계와 반복·숙달.</p>
+        <p><b>인지주의</b> : 주의·지각·작업기억·부호화·저장·인출의 내적 정보처리 — 인지부하 조절, 선수지식 활성화, 인출과 메타인지 지원.</p>
+        <p><b>구성주의</b> : 실제적 맥락에서 개인적·사회적으로 의미를 구성 — 비구조화된 문제, 협력과 의미 협상, 다양한 관점, 스캐폴딩과 성찰.</p>
+        <p><b>공통 연결</b> : 학습이론은 학습의 기제를 설명하고, 교수설계는 그 설명을 근거로 적절한 교수방법을 처방한다. 에듀테크 자체는 특정 학습이론에 속하지 않으며 수업목표와 설계방식에 따라 서로 다른 이론을 구현할 수 있다.</p>
+      </div></details></li>
+  </ul>
+</section>
+
+<footer>백지 복습 틀 (1~12장 + 오답노트) · 정답은 단권화 노트 원문 및 핵심 뼈대 위주로 정리</footer>
 </div>
+<script>
+(() => {
+  const STORAGE_KEY = 'edtech-wrong-counts-v1';
+  const items = Array.from(document.querySelectorAll('section > ul > li'));
+
+  const loadCounts = () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      return saved && typeof saved === 'object' ? saved : {};
+    } catch (error) {
+      return {};
+    }
+  };
+
+  const counts = loadCounts();
+
+  const saveCounts = () => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(counts));
+    } catch (error) {
+      /* 파일을 연 환경에서 저장이 제한되면 현재 화면에서만 작동합니다. */
+    }
+  };
+
+  const hashText = (text) => {
+    let hash = 2166136261;
+    for (let index = 0; index < text.length; index += 1) {
+      hash ^= text.charCodeAt(index);
+      hash = Math.imul(hash, 16777619);
+    }
+    return (hash >>> 0).toString(36);
+  };
+
+  const getPromptText = (item) => {
+    const copy = item.cloneNode(true);
+    copy.querySelectorAll('details, ul, ol, .wrong-tracker').forEach((node) => node.remove());
+    return copy.textContent.replace(/\s+/g, ' ').trim();
+  };
+
+  const render = (tracker, count) => {
+    tracker.querySelectorAll('.wrong-dot').forEach((dot, index) => {
+      const filled = index < count;
+      dot.classList.toggle('filled', filled);
+      dot.setAttribute('aria-pressed', String(filled));
+      dot.title = count === index + 1
+        ? `오답 횟수를 ${index}회로 줄이기`
+        : `오답 횟수를 ${index + 1}회로 설정`;
+    });
+    tracker.querySelector('.wrong-count').textContent = `현재 오답 ${count}회`;
+    tracker.setAttribute('aria-label', `오답 횟수: ${count}회`);
+  };
+
+  items.forEach((item) => {
+    const sectionTitle = item.closest('section')?.querySelector('h2')?.textContent.trim() || 'section';
+    const prompt = getPromptText(item);
+    const itemKey = `item-${hashText(`${sectionTitle}|${prompt}`)}`;
+    const initialCount = Math.min(5, Math.max(0, Number(counts[itemKey]) || 0));
+
+    const tracker = document.createElement('span');
+    tracker.className = 'wrong-tracker';
+    tracker.dataset.itemKey = itemKey;
+
+    const label = document.createElement('span');
+    label.className = 'wrong-label';
+    label.textContent = '오답';
+    tracker.appendChild(label);
+
+    for (let number = 1; number <= 5; number += 1) {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'wrong-dot';
+      dot.setAttribute('aria-label', `오답 ${number}회로 설정`);
+      dot.addEventListener('click', () => {
+        const current = Math.min(5, Math.max(0, Number(counts[itemKey]) || 0));
+        const next = current === number ? number - 1 : number;
+        counts[itemKey] = next;
+        saveCounts();
+        render(tracker, next);
+      });
+      tracker.appendChild(dot);
+    }
+
+    const liveCount = document.createElement('span');
+    liveCount.className = 'wrong-count';
+    liveCount.setAttribute('aria-live', 'polite');
+    tracker.appendChild(liveCount);
+
+    const firstDetails = Array.from(item.children).find((child) => child.tagName === 'DETAILS');
+    if (firstDetails) {
+      item.insertBefore(tracker, firstDetails);
+    } else {
+      item.appendChild(tracker);
+    }
+    render(tracker, initialCount);
+  });
+})();
+</script>
 </body>
 </html>
