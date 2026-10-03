@@ -225,15 +225,21 @@ const CONFIG = {
 /* 자료: 백지복습틀은 저장소에 함께 올리고, 개인정보가 있는 PDF는 Supabase Storage(비공개)에서 엽니다.
    storage 항목은 Supabase를 연결하지 않았을 때 local 경로(이 컴퓨터의 private-docs 폴더)로 엽니다. */
 const MATERIALS = [
+  {id: "wrong",  title: "교육공학 백지복습 오답 체크판 (1~12장 + 오답노트)", type: "html", path: "materials/wrong-check-blank-review.html"},
   {id: "edu",    title: "교육공학과 수업 백지복습틀 (1~11장)", type: "html", path: "materials/edutech-blank-review.html"},
-  {id: "dig",    title: "디지털 교육 백지복습틀 (1~2장)",       type: "html", path: "materials/digital-edu-blank-review.html"},
-  {id: "sop",    title: "자기소개서 및 수학·연구계획서",          type: "pdf",  storage: "sop.pdf",    path: "private-docs/sop.pdf"},
+  {id: "paper",  title: "논문읽기 백지복습틀 (Dick & Carey, RPISD, 조영환 외)", type: "html", path: "materials/paper-reading-blank-review.html"},
+  {id: "dig",    title: "디지털 교육 백지복습틀 (1~7장)", type: "html", path: "materials/digital-edu-blank-review.html"},
+  {id: "en",     title: "영어 면접 백지복습", type: "html", path: "materials/english-interview-recall.html"},
+  {id: "sop",    title: "자기소개서 및 수학·연구계획서", type: "pdf",  storage: "sop.pdf",    path: "private-docs/sop.pdf"},
   {id: "report", title: "연구보고서: AI 활용 음악 감상 수업 개선 실행연구", type: "pdf", storage: "report.pdf", path: "private-docs/report.pdf"}
 ];
 /* 바로가기: 문서 안의 위치 (html은 #ch번호, pdf는 #page=쪽) */
 const JUMPS = {
+  wrong: [["1장","#ch1"],["2장","#ch2"],["3장","#ch3"],["4장","#ch4"],["5장","#ch5"],["6장","#ch6"],["7장","#ch7"],["8장","#ch8"],["9장","#ch9"],["10장","#ch10"],["11장","#ch11"],["12장 라이겔루스·정교화","#ch12"],["오답노트 Day 9","#ch13"]],
   edu: [["1장 정의","#ch1"],["2장 수업체제 설계","#ch2"],["3장 요구분석·목표·과제","#ch3"],["4장 교수자 중심","#ch4"],["5장 학습자 중심 설계","#ch5"],["6장 학습자 중심 방법","#ch6"],["7장 수업자료","#ch7"],["8장 테크놀로지 기초","#ch8"],["9장 테크놀로지 실제","#ch9"],["10장 과정안","#ch10"],["11장 실행·의사소통","#ch11"]],
-  dig: [["1. 디지털 전환과 사회","#ch1"],["2. 교육의 대응","#ch2"],["3. 에듀테크 활용","#ch3"],["4. AI 활용 교육","#ch4"]],
+  paper: [["1. Dick & Carey","#ch1"],["2. RPISD 2020","#ch2"],["3. RPISD 2023","#ch3"],["4. 조영환 외(2023)","#ch4"],["5. 연결해서 쓰기","#ch5"]],
+  dig: [["1. 디지털 전환과 사회","#ch1"],["2. 교육의 대응","#ch2"],["3. 에듀테크 활용","#ch3"],["4. AI 활용 교육","#ch4"],["5~6. AI 디지털교과서","#ch5"],["7. 데이터 리터러시","#ch6"]],
+  en: [["01 자기소개","#ch1"],["02 교수설계 적용 경험","#ch2"]],
   sop: [["⑧ 경력","#page=1"],["⑨ 지원동기","#page=1"],["⑩ 성격","#page=3"],["⑬ 연구계획","#page=5"],["연구문제·조건·차시","#page=7"],["데이터 수집·분석","#page=7"],["⑭ 관심과목·⑮ 이후 계획","#page=10"]],
   report: [["요약·서론","#page=1"],["Ⅱ 이론적 배경","#page=3"],["Ⅲ 연구 방법","#page=7"],["Ⅳ 수업 개선 과정","#page=12"],["<표 7> 프롬프트 주도성","#page=15"],["<표 10> 응답 처리","#page=17"],["<표 11> 점수 분포","#page=18"],["Ⅴ 학생 사례","#page=19"],["Ⅵ 논의","#page=22"]]
 };
@@ -307,22 +313,251 @@ const SEED_SPARE = [
   ["[2장] ETISD 특징 4개 백지로 쓰기, 특히 '목표·내용 분석과 동시에 하는 것'이 무엇인지 확인", "edu#ch2", 10],
   ["[3장] 가네 학습결과 5가지와 지적 기능 하위 4단계(변·개·원·문) 백지로 쓰기, '지적 기능' 용어 정확히", "edu#ch3", 5],
   ["[2장] 딕과 케리 장점·제한점·개선 방향(RPISD) 개요 한 편 더 쓰기", "edu#ch2", 15],
+  ["[논문읽기 1] Dick & Carey 10단계 백지로 쓰고 '선형 모형이라고 해도 되는가'에 답 쓰기", "paper#ch1", 10],
+  ["[논문읽기 2~3] RPISD 2020 개선 제안 3가지와 2023 단계별 개선점 6가지 백지로 쓰기", "paper#ch2", 15],
+  ["[12장] 라이겔루스 교수설계이론 세 변인(조건·방법·성과)과 교수방법 변인 3가지(조직·전달·관리) 백지로 쓰기", "wrong#ch12", 10],
+  ["[12장] 정교화이론 7가지 전략과 정수(epitome) 백지로 쓰고, 가네 9사태와의 관계를 한 줄로 쓰기", "wrong#ch12", 10],
   ["[4장] 가네 내적 학습과정 8 ↔ 외적 수업사태 9 대응표 백지로 채우기", "edu#ch4", 10],
   ["[4장+6장] PBL과 가네 9사태 비교 문제 개요 쓰기 (2017 기출 유형)", "edu#ch6", 15],
+  ["[오답노트 Day 9] 학습이론 오답 카드 10개를 가리고 답한 뒤, 틀린 문항에 오답 점 찍기", "wrong#ch13", 15],
   ["[5장] 조나센 CLE 중심 1+3, 지원 5, 교수활동 3 백지로 쓰고 내 수업 사례 한 줄씩 대입", "edu#ch5", 15],
   ["[5장] 객관주의 vs 구성주의 6기준(지식·학습·교사·과제·평가·교수) 비교표 백지로 채우기", "edu#ch5", 10],
+  ["[논문읽기 4] 조영환 외(2023) 협력 파트너 논리 5가지와 AI가 학습을 약화시키는 경우 백지로 쓰기", "paper#ch4", 10],
+  ["[예상문제 1] 조영환: AI를 보는 세 관점(매체·학습도구·행위자)을 배경·사례·한계로 백지에 쓰고 예상 답안과 비교", "q#q1", 15],
+  ["[예상문제 5] 임철일: AI 융합 교육 vs AI 활용 교육 구분과 분류 체계 3기준(목표·내용 요소·융합 방식) 백지로 쓰기", "q#q5", 10],
+  ["[예상문제 4] PFL·Fit 개념을 쓰고 'AI 시대엔 PFL이 덜 중요하다'는 주장에 대한 내 의견 한 문단 쓰기", "q#q4", 15],
   ["[디지털 4장 + 9장] ITS 기반 모델 3가지(교·영·학)와 ITS vs ILE 비교 백지로 쓰기", "dig#ch4", 10],
   ["[AI 축] '인지·사회정서·행동 데이터를 AI 학습 시스템에서 어떻게 활용할지' 개요 한 편 쓰기 (2025 기출 유형)", "dig#ch4", 15],
+  ["[논문읽기 5] Dick & Carey → RPISD → 생성형 AI 교육으로 이어지는 논리를 한 문단으로 쓰기", "paper#ch5", 15],
+  ["[예상문제 3] AI 허용 평가 vs AI 없는 평가: 분산인지와 PFL로 개요 쓰고, 내 전이과제 설계 이유로 면접 답변 연습", "q#q3", 15],
+  ["[예상문제 8] 미래 핵심역량 틀 4개(WEF·OECD 2030·P21·2015 개정) 백지로 쓰고 교사 역할 변화 한 줄", "q#q8", 10],
+  ["[예상문제 9] AI 튜터 지능적 수업처방 변인 5가지와 지능정보기술 활용 수업의 약점·보완 백지로 쓰기", "q#q9", 10],
+  ["[예상문제 2·6·7] 조영환 모형 4요소, 김갑수 AI 융합 4모델, AiT 3유형 개요만 5분씩 쓰기", "q#q2", 15],
+  ["[영어 면접 01] 자기소개를 원고 없이 45~55초 말한 뒤 백지 답변 칸에 적기", "en#ch1", 10],
+  ["[영어 면접 02] 교수설계 적용 경험(타자수비대) 백지 답변을 쓰고 다듬은 답변과 비교하기", "en#ch2", 10],
   ["[8장] 활동체제 구성요소와 '테크놀로지 활용 수업이 어려운 이유'를 요소별로 백지로 쓰기", "edu#ch8", 10],
   ["[8장] TIM 두 축(5×5)과 TPACK 수업설계 3단계 백지로 쓰기", "edu#ch8", 10],
+  ["[디지털 5~6장] AI 디지털교과서 3대 교육적 변화와 UDL 3원리 백지로 쓰기", "dig#ch5", 10],
   ["[1장] AECT(2008) 정의(왜·무엇을·어떻게·정체)와 교육공학적 접근 특징 3가지 백지로 쓰기", "edu#ch1", 5],
   ["[7장 + 디지털 3장] ASSURE 4단계 5P 활동(사·자·환·학·경)과 멀티미디어 설계 원리 백지로 쓰기", "edu#ch7", 10],
   ["[6장] 프로젝트 기반 학습 vs PBL 비교 4가지와 디자인씽킹 5단계 백지로 쓰기", "edu#ch6", 10],
   ["[디지털 2장] AI 교육 5 Big Ideas, 에듀테크 4유형, AIEDAP 3영역 백지로 쓰기", "dig#ch2", 10],
+  ["[디지털 7장] 디자인 씽킹 기반 데이터 리터러시 수업 모형 5단계 백지로 쓰기", "dig#ch6", 5],
   ["[CPS] 창의적 문제해결 6단계를 쓰고 디자인씽킹·PBL과 다른 점 한 문단 쓰기 (2019 기출 연결)", "", 15],
   ["[면접·영어] 'Please explain cognitive load theory' 1분 답변 녹음해 다시 듣기", "", 5],
   ["[면접] 보고서 <표 7>·<표 10>·<표 11> 수치를 가리고 말로 설명해 보기", "report#page=15", 5],
   ["[디지털 1장] 디지털 리터러시 피라미드 4영역 10요소 위에서부터 백지로 쓰기", "dig#ch1", 5]
+];
+
+/* 예상문제: 교재 추가 후보 A(미래학교 1장, 미래교육 II 4·5·8·9장, 교육공학과 수업 12장) 기반 */
+const EXAM_QS = [
+{
+"id": "q1",
+"src": "미래학교 1장 · 조영환(서울대)",
+"page": "교재 19~48쪽",
+"axis": "AI·학습분석",
+"kind": "필답",
+"q": "인공지능을 교육매체, 학습도구, 교육 행위자로 보는 세 관점을 이론적 배경·사례·한계를 들어 비교하고, AI 기반 교육을 설계할 때 어떤 관점이 필요한지 논하시오.",
+"intent": "AI를 '무엇으로 보느냐'에 따라 교사·학습자·AI의 관계와 수업 설계가 달라진다는 점을 이해했는지 확인. 단순 나열이 아니라 관점마다 학습이론(행동·인지주의 / 구성주의 / 포스트휴머니즘)과 한계를 짝지어 쓰는지가 변별 포인트.",
+"kw": [
+"교육매체: 행동주의·인지주의, 지식 전달, ITS(학습자·내용·교수 모델), 스키너 티칭머신",
+"매체 관점 한계: 학습자 수동, 문제 발견·정의 기회 부족, 게이밍(gaming) 행동",
+"학습도구: 구성주의, 학습자가 AI로 지식 구성, 사용 목적에 따라 효과 달라짐",
+"도구 관점 한계: AI가 스스로 학습·블랙박스라는 차이를 간과 → 영향력 과소평가",
+"교육 행위자: 포스트휴머니즘, 수평적 관계, 컴퓨터를 사회적 행위자로 대함(CASA)",
+"행위자 역할: 교사(오토튜터)·학습자(베티의 브레인)·친구(로봇)",
+"세 관점 혼재: 기업=매체, 학교=도구, 정부 정책=행위자(협력)"
+],
+"ans": "[서론] AI 기반 교육의 효과는 기술에 미리 정해져 있지 않고, AI를 어떤 관점에서 보고 설계하느냐에 따라 달라진다. 조영환은 AI를 교육매체, 학습도구, 교육 행위자로 보는 세 관점을 구분한다.\n\n[본론 1] 교육매체 관점\n- 배경: 행동주의·인지주의. 교사가 정한 목표를 효과적으로 달성하도록 지식을 전달한다.\n- 사례: 지능형 튜터링 시스템(ITS). 학습자·내용 영역·교수 모델로 문제해결 과정을 진단하고 개별화된 문제와 피드백을 제공한다. 스키너의 티칭머신과 같은 계열이다.\n- 한계: 학습자가 AI'로부터' 배우는 수동적 역할에 머물고, 문제를 스스로 발견·정의할 기회가 부족하다. 동기가 낮은 학습자는 힌트를 남용하는 게이밍 행동을 보인다.\n\n[본론 2] 학습도구 관점\n- 배경: 구성주의. 학습자가 AI를 활용해 스스로 지식을 구성하고, AI는 혼자 하기 어려운 일을 덜어 고차적 사고에 집중하게 한다(예: 오토드로우).\n- 핵심: 교사보다 학습자의 의지와 사용 목적이 중요하다. 같은 풀이 검색 앱도 스스로 풀다 막힐 때 쓰면 도움이 되지만 답만 얻으려 쓰면 학습에 도움이 되지 않는다.\n- 한계: AI는 데이터로 스스로 학습하고 블랙박스여서 사용자 의도와 다르게 작동할 수 있다. 이를 단순 도구로 보면 AI의 교육적 영향력을 과소평가한다.\n\n[본론 3] 교육 행위자 관점\n- 배경: 포스트휴머니즘. 인간과 기술이 수평적으로 서로 영향을 주고받는다. 사람은 컴퓨터에도 사회적 규칙을 적용하는 경향이 있다.\n- 사례: 교사 역할(오토튜터의 대화형 안내), 학습자 역할(베티의 브레인처럼 학생이 AI를 가르치며 자기 이해 점검), 친구 역할(정서적 상호작용 로봇).\n- 한계: 자연스러운 대화·기억 등 기술적 제약, AI에 대한 부정적 시각, 블랙박스에 대한 과신 우려.\n\n[결론] 실제로는 세 관점이 혼재한다(기업은 성적 향상용 매체, 학교는 탐구용 도구, 정부 정책은 협력 대상인 행위자). 관점 차이는 현장의 갈등과 혼란을 낳을 수 있으므로, 설계 단계에서 AI의 역할과 목적을 먼저 합의해야 한다. 저자는 AI의 영향력을 설명하려면 행위자 관점이 필요하다고 보고 이를 바탕으로 AI 기반 교육 모형을 제안한다.",
+"link": "면접 연결: 내 실행연구의 학생들은 AI를 '산출 대행 매체'처럼 썼고, PACE는 AI를 '학습도구'로 쓰게 하려는 시도였다. 새 연구는 학생이 AI 응답을 받고 생각을 잇는지, 곧 행위자와의 상호작용을 본다고 연결해 말할 수 있다.",
+"note": ""
+},
+{
+"id": "q2",
+"src": "미래학교 1장 · 조영환(서울대)",
+"page": "교재 19~48쪽",
+"axis": "AI·학습분석",
+"kind": "필답",
+"q": "조영환이 제안한 인공지능 기반 교육 모형의 네 구성요소를 설명하고, 이를 활용해 AI 활용 수업을 설계할 때 고려할 점을 제시하시오.",
+"intent": "'기술이 아니라 교육활동이 중심'이라는 모형의 핵심을 잡았는지, 그리고 교육목적·학습내용·평가·교수방법이 서로 정렬되어야 한다는 설계 관점으로 풀어내는지 확인.",
+"kw": [
+"중심은 AI가 아니라 교육활동(교육목적·학습내용·평가·교수방법)",
+"주요 목적: 맞춤형 학습, 학습자의 선택권(추천 확증편향 방지에 교사 역할)",
+"평가: 수준별·과정 중심·비침습적, AI와 함께 무엇을 할 수 있는지",
+"교사·학습자·AI 상호작용: 전문성 이해, 신뢰, 역할 분담, 갈등 조정, 투명성",
+"교육환경: 물리적·제도적·사회문화적 (무학년제, 디지털 격차, 교사 태도)",
+"공진화: 활동이론, 긴장과 갈등을 줄여 가며 함께 발전"
+],
+"ans": "[서론] AI 기반 교육은 기존 교육의 연장선이 아니라 교사·학습자·AI가 수평적으로 상호작용하는 체제로 설계해야 한다. 조영환의 모형은 네 요소로 이루어진다.\n\n[본론]\n1) 교육활동: 모형의 중심은 AI가 아니라 교육활동이다. 교육목적을 먼저 정하고 학습내용·평가·교수방법을 정렬한다. AI의 특성(데이터 기반 진단과 적응적 지원)을 살려 맞춤형 학습을 주요 목적으로 삼는다. 학습내용은 개인별로 다양화하되 학습자가 교사의 도움을 받아 스스로 선택하게 하고, 평가는 수준별·과정 중심으로 학습을 멈추지 않고 이루어지게 한다. 교수방법은 AI와 함께하는 활동 중심 수업이며, 진단 정보로 인한 낙인효과를 경계한다.\n2) 교사·학습자·AI의 상호작용: 사람 간 협력처럼 상대의 전문성을 이해하고 신뢰를 쌓고 역할을 나누고 갈등을 조정해야 한다. 교사는 질문 생성·시민교육·동기 촉진처럼 AI가 하기 어려운 일을 맡는다. 학습자는 AI와 함께 배우는 법을 익혀야 한다(번역기를 그대로 쓰거나 불신하지 않고, 점검·추가 검색·재입력하는 과정). AI는 목적을 공유하고 추천 이유를 투명하게 제공하며 사회정서적으로도 상호작용해야 한다.\n3) 교육환경: 물리적 환경(디지털 인프라, 유연한 교실, 안전한 데이터 관리), 제도적 환경(무학년제 등 맞춤형 학습을 위한 제도, 디지털 격차와 책임 소재 대비), 사회문화적 환경(교사의 태도와 학교 문화)을 함께 바꾼다.\n4) 교육과 AI의 공진화: 교육 속에서 AI가 발전하고 AI가 교육을 바꾼다. 활동이론에 따르면 초기의 긴장과 갈등은 자연스럽고, 이를 해소하는 과정에서 발전한다.\n\n[결론] 설계 시에는 ① AI를 쓰는 이유를 교육목적에서 출발해 정하고 ② 평가가 목적과 맞는지 점검하며 ③ 학습자의 자율성과 교사의 판단을 남기고 ④ 인프라·제도·문화를 함께 준비해야 한다. 교사가 혁신의 대상이 아니라 주체로 참여할 때 성공할 수 있다.",
+"link": "내 연구계획의 8차시 공통 지원, 학습자 선택권, 교사의 판단을 남기는 설계와 연결해 말할 수 있다.",
+"note": ""
+},
+{
+"id": "q3",
+"src": "미래학교 1장 + 미래교육 II 8장 (통합)",
+"page": "미래학교 교재 19~48쪽 / 미래교육 II PDF 251쪽",
+"axis": "AI·학습분석",
+"kind": "필답·면접",
+"q": "AI를 활용해 학습한 결과를 평가할 때 AI 사용을 허용해야 하는가? 분산인지 관점과 '미래 학습을 위한 준비(PFL)' 관점을 비교하여 논하시오.",
+"intent": "AI 시대 평가의 핵심 쟁점. 정답이 정해진 문제가 아니라, 교육목적에 따라 평가 방식이 달라진다는 논리를 세우는지 본다. 두 관점을 대립시킨 뒤 '목적에 따른 선택'으로 종합하면 좋다.",
+"kw": [
+"분산인지: 지적 활동이 도구와 환경에 분산됨 → AI가 인지 시스템의 일부라면 평가에서도 허용",
+"행위자 관점: AI를 배제한 평가 지양, 실제 맥락에서 AI와 함께 무엇을 할 수 있는지",
+"반대 축: 교육목적이 도구 없이 혼자 수행하는 능력이라면 AI가 어떤 능력을 기르는지 검토",
+"오토드로우 예: 정교하게 그리는 능력은 약해져도 아이디어 생성 능력은 향상",
+"PFL: 테크놀로지가 사라진 뒤 새 학습을 얼마나 잘하는가(2단계 연구 설계)",
+"송동길: AI 시대엔 AI가 곁에 남으므로 PFL이 덜 중요할 수 있다는 주장",
+"종합: 교육목적과 교육과정이 기준, 두 평가를 함께 설계"
+],
+"ans": "[서론] AI가 학습에 깊이 들어오면서 '학습 결과를 AI 없이 평가할 것인가'가 핵심 쟁점이 되었다. 이는 학습을 어디에서 일어나는 것으로 보는지에 달려 있다.\n\n[본론 1] 허용해야 한다는 관점\n- 분산인지: 지적 활동은 학습자 머릿속에만 있지 않고 도구와 환경에 분산되어 있다. AI가 학습자 인지 시스템의 일부라면 학습뿐 아니라 평가에서도 AI를 활용해 과제를 해결하게 하는 것이 타당하다.\n- 교육 행위자 관점(조영환): 학습은 AI와의 지속적 상호작용 속에서 일어나므로, 실제 맥락에서 AI와 함께 무엇을 할 수 있는지를 평가해야 한다.\n- 송동길: AI는 학습 환경이 바뀌어도 계속 학습자 곁에 있을 가능성이 높아, AI 없는 상황을 대비시키는 PFL은 덜 중요할 수 있다.\n\n[본론 2] AI 없는 수행도 확인해야 한다는 관점\n- PFL(Bransford & Schwartz): 좋은 테크놀로지는 그것이 사라진 뒤의 새로운 학습까지 준비시켜야 한다. 1단계에서 효과를 확인한 뒤, 2단계에서 두 집단이 같은 조건으로 새 내용을 배울 때의 성과를 비교한다.\n- 조영환도 교육목적이 도구 없이 혼자 수행하는 능력이라면 AI가 그 능력을 길러 주는지 검토해야 한다고 본다. AI가 대신해 준 일과 관련된 능력은 개발되기 어렵다(오토드로우를 계속 쓰면 정교하게 그리는 능력은 길러지기 어렵지만 아이디어 생성 능력은 향상된다).\n\n[결론] 둘 중 하나를 고르는 문제가 아니라 교육목적이 기준이다. 목표가 'AI와 함께 문제를 해결하는 역량'이면 AI 허용 평가가, 목표가 '학습자 스스로의 이해와 표현'이면 AI 없는 전이 평가가 필요하다. 실제로는 두 평가를 함께 설계해 AI와의 상호작용 과정과 독립 수행을 구분해 보는 것이 바람직하다.",
+"link": "면접 핵심 카드: 내 실행연구가 AI 없는 전이과제를 둔 이유는 음악과 교육과정이 학생 스스로 느낌과 견해를 말·글로 표현하는 것을 목표로 하기 때문(교육부 2022). 동시에 대화 기록(AI와의 상호작용)도 함께 봤다. 'PFL이 덜 중요하다는 주장도 있지만, 학교 교육과정이 독립 수행을 요구하는 한 두 자료를 함께 봐야 한다'고 답할 수 있다.",
+"note": "결론의 '두 평가 함께 설계'는 두 장을 연결한 종합 논리입니다(교재에 그대로 있는 문장은 아님)."
+},
+{
+"id": "q4",
+"src": "미래교육 II 8장 · 송동길(Texas A&M)",
+"page": "PDF 251~264쪽",
+"axis": "AI·학습분석",
+"kind": "필답·면접",
+"q": "'미래 학습을 위한 준비(PFL)'와 '적합성(Fit)'의 개념을 설명하고, 이를 바탕으로 인간-AI 협업을 위한 미래교육의 방향을 논하시오.",
+"intent": "교육공학 연구 방법(실험연구)에 대한 비판에서 출발해 AI 시대의 연구·교육 방향으로 이어지는 논리를 따라갈 수 있는지 확인. 'AI 활용법을 직접 가르치는 교육은 fit이 맞지 않는다'는 도발적 주장을 정확히 옮기고 평가할 수 있는지가 변별 포인트.",
+"kw": [
+"전통적 교육실험연구: 실험·통제집단, 사전·사후 비교 → 테크놀로지가 없어진 뒤는?",
+"PFL(Bransford & Schwartz, 1999; Schwartz & Martin, 2004): 2단계 연구",
+"Fit: 다른 기술로 바꿔 넣어도 말이 되는 설명은 적합성이 낮음 → AI만의 특성에 초점",
+"핵심 주장: AI 시대엔 (1) PFL이 덜 중요할 수 있고 (2) fit을 맞춘 연구·활동이 필요",
+"Human-AI 협력: AI가 잘하는 건 신뢰, 못하는 건 직접 (자율주행 예)",
+"특정 도구의 장단점·활용법을 직접 가르치는 교육은 fit이 맞지 않음 → 강약점을 스스로 빠르게 파악하는 역량",
+"학습자-AI 협력은 학습자-자료 상호작용을 넘어 학습자-학습자 상호작용까지 포괄"
+],
+"ans": "[서론] 교육공학은 학습자와 테크놀로지의 상호작용을 연구해 왔다. 송동길은 AI 시대에 이 연구 관점이 어떻게 바뀌어야 하는지를 PFL과 Fit으로 설명한다.\n\n[본론 1] PFL\n- 전통적 실험연구는 특정 테크놀로지를 쓴 집단의 사후 성적이 더 높으면 효과가 있다고 일반화한다. 그러나 그 테크놀로지가 없는 환경(예: 대학 수업)에서는 어떻게 배우느냐는 비판을 받는다.\n- PFL은 이를 극복하는 연구 기조다. 1단계에서 기존 방식대로 효과를 비교한 뒤, 2단계에서 두 집단이 모두 같은 조건(예: 책 교과서)으로 새 내용을 배울 때 성과를 비교한다. 2단계에서도 앞서면 그 테크놀로지는 미래 학습을 준비시킨 것이다. 개념적으로 훌륭하지만 장기간 추적이 필요해 현실적으로 어렵다.\n\n[본론 2] Fit\n- '생성형 AI가 심화 설명을 해 준다'는 말은 '검색엔진'을 넣어도 성립한다. 이렇게 기존 기술로도 되는 일을 AI 덕분이라고 말하는 것은 적합성이 낮다.\n- 기존 기술이 못 하던 일을 AI가 할 때 이를 찾아내고, 왜 그런지 분석하고, 더 잘하도록 촉진하는 연구와 자료가 필요하다.\n\n[본론 3] 인간-AI 협업의 방향\n- 저자는 AI가 학습자 곁에서 떨어지지 않을 것이므로 PFL은 덜 중요할 수 있고, AI 특성을 살리는(fit) 학습이 중요하다고 본다.\n- 협업의 핵심은 AI가 잘하는 부분은 신뢰하고 못하는 부분은 인간이 직접 하는 것이다(자율주행 예).\n- 그러나 'AI는 이런 걸 못하니 직접 하라'처럼 특정 도구의 장단점을 가르치는 교육은 업데이트로 금방 무의미해진다. 학습자가 스스로 AI의 강약점을 빠르게 파악하는 역량을 길러야 한다.\n- 학습자-AI 협력은 흥미·몰입 중심의 학습자-자료 상호작용을 넘어 학습자-학습자 상호작용까지 포괄하는 새로운 상호작용이다.\n\n[결론] 미래교육 연구는 AI만이 할 수 있는 일에 초점을 맞추고(fit), 학습자가 AI의 강약점을 스스로 판단하며 협업하는 역량을 기르는 방향으로 나아가야 한다. 다만 학교 교육과정이 독립 수행을 요구하고 AI 접근이 고르지 않은 현실을 고려하면 PFL 관점을 완전히 버리기보다 목적에 따라 함께 고려하는 것이 타당하다.",
+"link": "면접 대비: 'PACE도 결국 AI 활용법을 가르친 것 아니냐(fit 비판)'는 질문이 가능하다. 답: PACE는 특정 도구의 기능이 아니라 '먼저 생각하고, 막힌 곳을 묻고, 실제 음악으로 확인하고, 내 말로 설명하는' 메타인지 절차라서 도구가 바뀌어도 유지된다. 그리고 실행연구 결과도 전략 문구를 쓰는 것과 응답을 실제로 처리하는 것은 달랐기에, 이제 학생이 응답을 스스로 판단하는 과정을 연구하려 한다.",
+"note": "결론의 마지막 문장(PFL을 완전히 버리지 않기)은 답안 작성자의 평가입니다. 저자 주장과 구분해서 쓰세요."
+},
+{
+"id": "q5",
+"src": "미래교육 II 5장 · 임철일(서울대)",
+"page": "PDF 167~192쪽",
+"axis": "AI·학습분석",
+"kind": "필답",
+"q": "AI 융합 교육과 AI 활용 교육을 구분하고, AI 융합 교육의 분류 체계(세 가지 기준)를 설명한 뒤 최근 연구 동향을 바탕으로 향후 과제를 제시하시오.",
+"intent": "임철일 교수 직접 집필 장. convergence(내용상 융합)와 integration(방법론적 통합)의 구분, 분류 체계 3기준의 하위 범주를 정확히 쓰는지, 분석 결과에서 '이해 수준·학습 외 내용요소·다양한 교과'라는 세 과제를 끌어내는지 확인.",
+"kw": [
+"AI 융합 교육: AI 내용 지식 + 교과 내용 지식의 교육과정상 융합(convergence)",
+"AI 활용 교육: AI 도구를 교육방법론적으로 통합(integration), ASSURE·TPACK 전통, AIDT",
+"혼란 3가지: 교사 미온적, 구현 어려움(STEM 경험), AI 활용 교육과의 혼선",
+"기준 1 목표: 교과 및 AI 지식 이해 / 적용 / 창출",
+"기준 2 AI 내용 요소: 인식, 표현과 추론, 학습, 자연스러운 상호작용, 사회적 영향 (AI4K12)",
+"기준 3 융합 방식(Fogarty): 주제 연결형(계열형), 내용 요소 기준(공유형), 중심 교과 기준(거미줄형), AI+교과 개발형(실로 꿴 형), 핵심역량 기반(통합형)",
+"26편 분석: 창출13·적용12·이해1 / 학습22 최다 / 핵심역량 기반 12 최다 / 과학·사회 많고 음악·영어 등 미미",
+"향후 과제 3: 이해 수준의 간단한 모형, 학습 외 내용요소(AI 윤리, 프롬프트 원칙), 다양한 교과"
+],
+"ans": "[서론] AI 융합 교육에 대한 관심은 높지만, 필요성·구현 가능성·AI 활용 교육과의 차이를 둘러싼 혼란이 남아 있다. 임철일은 이를 정리하는 분류 체계를 제시한다.\n\n[본론 1] 구분\n- AI 융합 교육: 학생이 교과 지식을 AI 관련 지식으로 이해하거나 문제를 해결하는, 교육과정·내용 차원의 융합(convergence)이다. 교사는 교과와 관련된 AI 지식과 융합 교육 방법론을 함께 갖춰야 한다.\n- AI 활용 교육: AI 기술·도구를 교육방법론적으로 통합(integration)하는 것으로, AI 지식을 따로 배우지 않는다(예: ChatGPT로 자료 탐색). ASSURE·TPACK 같은 전통 위에 있으며 AI 디지털교과서도 여기에 속한다. 그 자체로 중요하지만 AI 융합 교육으로 간주하면 혼란이 생긴다.\n\n[본론 2] 분류 체계 3기준\n1) 목표: 교과 및 AI 지식의 이해 / 적용 / 창출\n2) AI 내용 요소: 인식, 표현과 추론, 학습, 자연스러운 상호작용, 사회적 영향\n3) 융합 방식(Fogarty의 교과 간 통합 기반): 주제 연결형, 내용 요소 기준, 중심 교과 기준, AI+교과 개발형, 핵심역량(문제해결) 기반\n특정 프로그램은 3차원 공간의 한 지점에 놓이고, 연구들이 어디에 몰려 있는지 볼 수 있다.\n\n[본론 3] 동향(2019~2024.2, 26편)\n- 목표: 창출 13, 적용 12, 이해 1 → 장기간의 고차 목표에 쏠림\n- 내용: 학습 22로 가장 많고 인식 17, 상호작용·표현과 추론·사회적 영향은 적음\n- 방식: 핵심역량 기반 12로 가장 많음\n- 교과: 과학·사회·기술가정·정보에 집중, 음악·영어·역사 등은 거의 없음\n\n[결론] 향후 과제는 ① 일반 교사가 한두 차시로 실천할 수 있는 이해 수준의 모형·프로그램 개발 ② 학습 외 내용 요소(예: AI 윤리, 프롬프트 원칙과 절차 = 자연스러운 상호작용)의 융합 ③ 사례가 없는 교과로의 확대다. 필요성 강조를 넘어 구체적 구현 방법을 보여 주어야 한다.",
+"link": "면접 연결: '내 연구는 AI 활용 교육에 가깝다'고 정확히 말할 수 있어야 한다. 덧붙여 음악은 AI 융합 사례가 거의 없는 교과이고, 프롬프트 원칙(자연스러운 상호작용)을 다루는 이해 수준 융합은 한두 차시로도 가능하다는 점에서 확장 가능성을 말할 수 있다.",
+"note": ""
+},
+{
+"id": "q6",
+"src": "미래교육 II 4장 · 김갑수(서울교대)",
+"page": "PDF 105~166쪽",
+"axis": "AI·학습분석",
+"kind": "필답",
+"q": "인공지능 교과 융합의 네 가지 모델(기본·응용·심화 응용·전문가)을 구분 기준과 함께 설명하고, 학습자 수준과 인지부하를 고려하여 모델 선택 방안을 논하시오.",
+"intent": "모델을 외우는지가 아니라 '데이터의 종류'와 'AI 도구를 고르는 방식'이라는 두 기준으로 구조화하는지, 그리고 교수설계 관점(인지부하, 학습자 수준)에서 선택 근거를 대는지 확인.",
+"kw": [
+"구분 기준: 사용하는 데이터의 종류 × AI 도구 선택 방식",
+"기본: 교과(교과서) 데이터 + 이미 만들어진 AI 도구",
+"응용: 실생활(공개) 데이터 + 이미 만들어진 AI 도구",
+"심화 응용: 실생활 데이터 + AI 라이브러리·프로그래밍으로 직접 설계",
+"전문가: 학습자가 데이터를 직접 생성·수집(IoT 등) + 전문가·상업적 수준 결과물",
+"배경 이론: 통합 교육과정(Ingram, Jacobs, Drake, Fogarty, Harden)",
+"저자 답변: 리터러시에 맞는 도구 선택, 도구 활용은 수업의 30% 이하"
+],
+"ans": "[서론] AI 교과 융합 모델은 STEM 융합 교육의 연장선에서 AI를 교과에 통합하는 방식을 단계화한 것이다. 모델은 '어떤 데이터를 쓰는가'와 'AI 도구를 어떻게 마련하는가'로 구분된다.\n\n[본론 1] 네 모델\n- 기본 모델: 교과서·교과 내용의 예제 데이터 + 에듀테크 기업·공공기관이 만든 AI 도구. 데이터 준비가 필요 없고 기술적 부담이 적어 교과 내용 이해에 집중한다. 다만 데이터와 도구의 유연성이 제한된다.\n- 응용 모델: 실생활 데이터(공공 데이터 등) + 기존 AI 도구. 교과 지식을 현실 문제와 연결하고 데이터 기반 의사결정을 경험한다.\n- 심화 응용 모델: 실생활 데이터 + AI 라이브러리와 프로그래밍으로 모델을 직접 설계. 코딩과 알고리즘 이해가 필요하다.\n- 전문가 모델: 학습자가 웹·설문·IoT 센서 등으로 데이터를 직접 생성·수집하고, 여러 교과의 성취기준을 아우르는 주제로 전문가·상업적 수준의 결과물을 만든다.\n\n[본론 2] 선택 방안\n- 학습자의 디지털·AI 리터러시와 사전지식에 맞춰 단계적으로 선택한다. 리터러시가 낮은 학습자에게 프로그래밍이 필요한 모델을 바로 적용하면 도구 사용 자체가 외재적 인지부하가 되어 교과 이해를 방해한다.\n- 저자는 리터러시에 맞는 도구를 고르고, 디지털·AI 도구 활용이 수업의 30% 이하가 되어야 한다고 답한다.\n- 교과 목표가 중심인 수업은 기본·응용 모델로, AI 역량 자체가 목표인 수업이나 고급 학습자는 심화·전문가 모델로 확장한다.\n\n[결론] 모델은 우열이 아니라 목적과 학습자 수준에 따른 선택지다. 성취기준과 AI 주제의 통합, 학생·교사의 데이터·AI 리터러시 향상, 개인화, 교사 연수와 인프라, 윤리 교육을 함께 고려해야 한다.",
+"link": "인지부하 축과 연결: 내 실행연구에서 AI가 쓰기 부담을 덜어 주려다 읽기 부담을 만든 것처럼, 도구 사용이 외재적 부하가 될 수 있다는 점을 사례로 들 수 있다.",
+"note": "'외재적 인지부하' 연결은 이 장의 질의응답을 바탕으로 한 확장입니다."
+},
+{
+"id": "q7",
+"src": "미래교육 II 9장 · 이다연(서울대)",
+"page": "PDF 265~290쪽",
+"axis": "설계모형",
+"kind": "필답",
+"q": "교사가 AI 융합 수업을 설계하기 어려운 이유를 제시하고, AI 기반 수업 설계 지원 시스템(AiT)의 설계 유형과 기능, 교사-AI 협력 시 유의점을 논하시오.",
+"intent": "교수설계(임철일 축)와 AI(조영환 축)가 만나는 문제. 교사의 경험 수준에 따라 지원 수준을 달리하는 설계 원리(비계와 점진적 감소)를 읽어 내는지, '인지적 잔재'로 시스템 없이도 설계 역량이 남는다는 논리를 쓰는지가 포인트.",
+"kw": [
+"수업 설계: 광의(ADDIE 체제적 과정) vs 협의(교수학습 활동 조직)",
+"AI 융합 수업: AI 소양과 여러 교과 지식으로 삶·공동체의 문제를 해결하는 수업",
+"어려운 이유 4: 역량 부족, 자료·지식 부족, 심리적 부담, 직접적 지원 부족",
+"지원 시스템 계보: GAIDA(가네 9사태), IDD Advisor, ISAAC, WIDSS, ID Expert(Merrill)",
+"AiT 3유형: AiTy와 함께(처음 시도, 높은 지원) / 가이드에 따라 / 자유롭게(숙련 교사)",
+"활동 단계: 도구 학습 → 문제 발견 → 문제 분석 → 해결안 도출 → 문제해결 → 평가",
+"기능: 도구 소개·맞춤 추천, 사례 검색, 커뮤니티, 챗봇, 대시보드",
+"효과: 효율·체계성·부담 감소·인지적 잔재 / 유의점: 의존 금지, 보완 도구"
+],
+"ans": "[서론] 교사는 수업 설계의 전문가지만 AI 융합 수업처럼 복합적인 수업을 설계하는 일은 새로운 도전이다. AI 기반 수업 설계 지원 시스템은 이를 돕는 교사-AI 협력의 한 형태다.\n\n[본론 1] 어려운 이유\n① AI 리터러시, 학습자 이해, 과제 분석, 교과 간 연결과 교육과정 재구성 등 필요한 역량을 모두 갖춘 교사가 적다. ② 융합 수업 설계를 다룬 연수와 자료가 부족하다. ③ 복잡하고 어렵다는 심리적 부담이 크다. ④ 설계 모형이 있어도 실제로 참고하기 어려워 직접적인 지원이 부족하다.\n\n[본론 2] AiT의 설계 유형과 기능\n- 교사의 경험 수준에 따라 세 유형을 고른다. 'AiTy와 함께 설계'는 처음 시도하는 교사에게 챗봇이 학년·차시·주제 등을 받아 수업을 추천하고 과정안까지 함께 만든다. '가이드에 따라 설계'는 단계별 안내와 사례를 제공한다. '자유롭게 설계'는 숙련 교사에게 기본 양식만 준다.\n- 수업 활동은 도구 학습, 문제 발견, 문제 분석, 해결안 도출, 문제해결, 평가 단계로 설계하며 단계를 오갈 수 있다.\n- AI 도구 소개와 맞춤 추천, 우수 수업 사례 검색, 커뮤니티, 상시 챗봇, 대시보드를 제공한다.\n\n[본론 3] 효과와 유의점\n- 짧은 시간에 체계적인 수업을 설계하고 부담을 줄인다. 표준화된 설계를 반복하면 절차에 대한 인지적 잔재가 남아 시스템 없이도 스스로 설계할 수 있게 된다.\n- 그러나 교사가 AI에 완전히 의존해서는 안 된다. 시스템은 교사를 대체하는 것이 아니라 더 창의적인 설계를 돕는 보완 도구다.\n\n[결론] 지원 수준을 경험에 맞추고 점차 줄여 가는 설계는 교수설계의 비계 원리와 같다. 교사-AI 협력은 설계의 효율뿐 아니라 교사의 설계 역량 자체를 기르는 방향이어야 한다.",
+"link": "내 연구와 같은 구조: 학생에게 AI 응답의 지원 수준(길이)을 달리하는 것처럼, AiT는 교사 경험에 따라 지원 수준을 달리한다. 인지적 잔재는 'AI 없이도 남는 학습'을 보려는 내 전이과제 설계와 같은 문제의식이라고 말할 수 있다.",
+"note": "'인지적 잔재'는 Salomon 등(1991)의 테크놀로지와 함께한 효과/테크놀로지로 인한 효과 논의에서 나온 개념입니다(교재는 임철일 외, 2014 인용)."
+},
+{
+"id": "q8",
+"src": "교육공학과 수업 12장",
+"page": "교재 419~452쪽 (PDF 421~)",
+"axis": "교육공학 정의",
+"kind": "필답",
+"q": "4차 산업혁명·지능정보사회의 특징을 설명하고, 미래 인재의 핵심역량에 관한 주요 틀을 비교한 뒤 교사의 새로운 역할을 논하시오.",
+"intent": "주교재 마지막 장의 정리 문제. 여러 역량 틀을 정확히 구분해 쓰는지(WEF·OECD 2030·P21·2015 개정), 그리고 역량 변화 → 수업방법 변화 → 교사 역할 변화의 논리로 연결하는지 확인.",
+"kw": [
+"지능정보기술 = AI + ICBM(IoT·Cloud·Big data·Mobile)",
+"초연결·초지능·초융합 사회",
+"WEF(2016): 기본 문제해결력·역량(4)·인성자질(6) 3범주 16가지",
+"OECD 교육 2030: 지식·기능·태도와 가치 + 변혁적 역량(새 가치 창출, 긴장과 딜레마 대처, 책임감) + 학습자 행위주체성",
+"P21: 학습과 혁신 4C(+컴퓨팅 사고=5C), 정보통신기술 리터러시, 생활적응",
+"2015 개정 6역량: 자기관리, 지식정보처리, 창의적 사고, 심미적 감성, 의사소통, 공동체",
+"교사 역할: 수업설계자·수업운영자·학습안내자·학습컨설턴트, 멘토"
+],
+"ans": "[서론] 4차 산업혁명은 AI와 ICBM(사물인터넷·클라우드·빅데이터·모바일)이 결합한 지능정보기술이 이끄는 변화로, 사회를 초연결·초지능·초융합 사회로 바꾸고 있다. 지식은 폭발적으로 늘고 검색으로 쉽게 얻을 수 있게 되어, 많이 기억하는 능력보다 정보를 찾아 문제를 해결하고 새로운 가치를 만드는 능력이 중요해졌다.\n\n[본론 1] 핵심역량 틀\n- WEF(2016): 기본 문제해결력, 역량(비판적 사고·문제해결, 창의성, 의사소통, 협력), 인성자질(호기심, 진취력, 끈기, 적응성, 리더십, 사회·문화적 인식)의 3범주 16가지\n- OECD 교육 2030: 지식·기능·태도와 가치의 기본 역량과, 새로운 가치 창출·긴장과 딜레마 대처·책임감의 변혁적 역량, 그리고 학습자 행위주체성\n- P21: 학습과 혁신(4C, 컴퓨팅 사고를 더한 5C), 정보통신기술(정보·미디어·공학매체 리터러시), 생활적응(유연성, 리더십, 진취성, 생산성, 사회적 기능)\n- 2015 개정 교육과정: 창의융합형 인재의 6가지 핵심역량\n공통적으로 융합창의적 사고·문제해결, 협업·의사소통, 디지털 활용, 자기주도 역량을 강조한다.\n\n[본론 2] 수업과 교사 역할의 변화\n- 이러한 역량은 교사 주도 수업보다 학습자 중심 수업과 지능정보기술 활용 수업에서 효과적으로 길러진다.\n- 교사는 지식 전달자에서 수업설계자·수업운영자·학습안내자·학습컨설턴트, 멘토로 바뀐다. 이를 위해 교육과정 재구조화, 교수체제설계, AI·에듀테크 활용, 온라인 의사소통, 수업리더십 역량이 필요하다.\n\n[결론] 기술이 발달해도 롤모델이자 학습촉진자로서 교사의 역할은 여전히 필수다. 지능정보기술 활용 수업과 협업 수업의 균형을 잡는 것이 교육공학적 수업의 과제다.",
+"link": "",
+"note": "WEF '기본 문제해결력'의 하위 항목은 교재 표현을 따랐습니다."
+},
+{
+"id": "q9",
+"src": "교육공학과 수업 12장",
+"page": "교재 433~452쪽",
+"axis": "매체·테크놀로지",
+"kind": "필답",
+"q": "AI 튜터와 같은 개인별 맞춤형 학습 플랫폼의 원리를 설명하고, 지능적 수업처방에서 고려해야 할 변인과 지능정보기술 활용 수업의 한계 및 보완 방안을 논하시오.",
+"intent": "교재 연습문제(2번 'AI 튜터에서 고려해야 하는 수업처방 요인')와 직결. 처방 변인 5가지를 정확히 쓰고, 기술의 약점을 블렌디드 러닝과 교사 역할로 보완하는 논리를 세우는지 확인.",
+"kw": [
+"맞춤형 학습: 학습행동 데이터 수집·분석 → 최적 학습경로·콘텐츠 처방",
+"AI 튜터 사례: ALEKS(지식공간 기반 진단), Knewton, Dreambox",
+"한계: 여러 수업 변인을 동시에 분석해 즉시 처방하는 알고리즘은 아직 미흡",
+"처방 변인 5: 학습계열 최적화, 학습량 적정화, 피드백 다양화, 학습시간 효율화, 학습성취 동기화 정보 제공",
+"지능정보기술 약점: 비활성·비실제적 지식, 온라인 협력학습 어려움, 비언어 의사소통 한계, 감성·인성·관계 형성 어려움",
+"보완: 블렌디드 러닝, 협업 수업과의 균형, 교사(촉진자·컨설턴트·멘토·롤모델)"
+],
+"ans": "[서론] 지능정보기술을 이용한 대표적인 수업 혁신은 개인별 맞춤형 학습이다. 그러나 효과를 내려면 처방의 정교함과 기술의 약점을 함께 고려해야 한다.\n\n[본론 1] 원리와 사례\n- 온라인 학습 중 학습자의 학습행동 데이터를 수집·분석하고, 그 결과로 학습자 수준에 맞는 학습경로와 콘텐츠를 처방해 학습효과를 극대화한다. 학습 전 진단으로 선수학습 요소와 수준을 파악해 최적의 과제를 제시한다.\n- ALEKS는 지식공간 이론에 기반해 학습경로를 처방하고, Knewton은 학생의 민감도·숙련도를 측정해 콘텐츠를 안내하며, Dreambox는 게임형 학습과 형성평가 피드백을 제공한다.\n\n[본론 2] 수업처방 변인\n현재 AI 튜터는 학습 중 상호작용하는 여러 변인을 동시에 분석해 즉시 처방하는 수준에는 이르지 못했다. 컴퓨터 기반 수업 연구에서 밝혀진 지능적 수업처방 변인, 곧 ① 학습계열의 최적화 ② 학습량의 적정화 ③ 학습과정 피드백의 다양화 ④ 학습시간의 효율화 ⑤ 학습성취 동기화 정보 제공을 AI와 빅데이터로 동시에 처방하는 알고리즘을 개발해야 완전학습을 실현할 수 있다.\n\n[본론 3] 한계와 보완\n- 온라인으로 얻은 지식은 직접 체험한 지식에 비해 비활성적이고 실제성이 떨어질 수 있다.\n- 온라인에서는 협력학습과 비언어적 의사소통이 어렵고, 감성·인성·인간관계 역량을 기르기 어렵다.\n- 보완: 면대면과 온라인을 결합한 블렌디드 러닝 체제를 개발하고, 협업 수업과 에듀테크 활용 수업의 비중을 균형 있게 설계한다. 교사는 학습촉진자·학습컨설턴트·멘토·롤모델로서 여전히 필수적이며, 학업 정보를 교사와 공유하는 지능형 교육시스템이 필요하다.\n\n[결론] AI 튜터는 교사를 대체하는 것이 아니라, 정교한 처방과 교사의 판단이 결합할 때 효과를 낸다.",
+"link": "면접 연결: 실행연구에서 교사 혼자 대화 기록을 분석하느라 피드백 시기를 놓친 경험 → 학습 데이터를 요약해 교사에게 주는 도구(대시보드)의 필요성과 연결.",
+"note": "ALEKS의 '지식공간 이론'은 이름(Assessment and LEarning in Knowledge Spaces)에서 나온 설명입니다."
+},
+{
+"id": "q10",
+"src": "미래교육 II 5장·8장 (면접용)",
+"page": "",
+"axis": "AI·학습분석",
+"kind": "면접",
+"q": "지원자의 연구는 AI 융합 교육인가요, AI 활용 교육인가요? 그리고 AI의 어떤 특성에 초점을 둔 연구인가요?",
+"intent": "교수가 자기 분야 개념으로 지원자 연구의 위치를 정확히 말할 수 있는지 확인하는 질문. 과장하지 않고 범주를 정확히 말한 뒤, 연구의 고유성(fit)을 설명하는지가 포인트.",
+"kw": [
+"AI 활용 교육에 가까움 (AI 지식을 가르치지 않고 감상 학습에 AI를 방법론적으로 활용)",
+"fit: 검색엔진·동영상과 달리 학습자 질문에 맞춰 길고 완성된 언어를 즉시 생성하는 특성",
+"그 특성이 '생산 대행'과 '읽기 부담'을 동시에 만든다는 점이 연구 대상",
+"확장: 음악은 AI 융합 사례가 거의 없는 교과, 프롬프트 원칙(자연스러운 상호작용) 이해 수준 융합 가능"
+],
+"ans": "(1분 답변 예시)\n제 연구는 AI 융합 교육보다는 AI 활용 교육에 가깝습니다. 학생에게 AI 지식을 가르치는 것이 아니라, 음악 감상 학습에 생성형 AI를 활용할 때 학생이 어떻게 생각을 이어 가는지를 보기 때문입니다.\n\n다만 검색엔진이나 동영상으로도 할 수 있는 일을 다루려는 것은 아닙니다. 생성형 AI는 학생의 질문에 맞춰 길고 완성된 글을 즉시 만들어 줍니다. 이 특성이 쓰기 부담을 덜어 주는 동시에, 학생에게 사고를 맡기게 하거나 읽기 부담을 만들 수 있다는 것을 실행연구에서 보았습니다. 그래서 응답의 길이라는, 생성형 AI에만 있는 조건에 초점을 두었습니다.\n\n나아가 음악은 AI 융합 사례가 거의 없는 교과라고 알고 있습니다. 프롬프트 원칙처럼 자연스러운 상호작용 영역을 다루는 짧은 융합 수업으로 확장할 수 있다고 생각합니다.",
+"link": "",
+"note": "이 카드는 면접 탭 근거 카드에도 넣어 두면 즉답 연습에 함께 나옵니다."
+}
 ];
 
 /* 지원서 기반 예상 질문 (예상 질문 카드 불러오기 버튼으로 넣습니다) */
@@ -381,6 +616,13 @@ const SEED_IV = [
   {lang:"en",topic:"연구계획",question:"What is your research plan for the master's program?",
    keywords:"how AI response length changes the way students read and keep thinking\nshort, medium, unrestricted conditions; before and after subject knowledge\nmultiple data sources; withhold judgment when evidence is weak",
    evidence:"수학계획서 ⑬", limits:"", followup:"What difficulties do you expect?"},
+  {lang:"ko",topic:"연구 위치",question:"지원자의 연구는 AI 융합 교육인가요, AI 활용 교육인가요? 그리고 AI의 어떤 특성에 초점을 둔 연구인가요?",
+   keywords:"AI 활용 교육에 가까움 (AI 지식을 가르치지 않고 감상 학습에 AI를 방법론적으로 활용)\nfit: 검색엔진·동영상과 달리 학습자 질문에 맞춰 길고 완성된 언어를 즉시 생성하는 특성\n그 특성이 '생산 대행'과 '읽기 부담'을 동시에 만든다는 점이 연구 대상\n확장: 음악은 AI 융합 사례가 거의 없는 교과, 프롬프트 원칙(자연스러운 상호작용) 이해 수준 융합 가능",
+   evidence:"미래교육 II 5장(임철일), 8장(송동길)", limits:"AI 융합 교육이라고 과장하지 않기", followup:"그럼 AI 융합 교육으로 확장한다면 어떻게 하시겠어요?"},
+  {lang:"en",topic:"교수설계 경험",question:"Can you give an example of applying instructional design?",
+   keywords:"improved Taja Guard, my typing program, with instructional design principles\nRPISD: shared the prototype, improved it based on feedback and revision\nARCS relevance: teachers enter words for their own classes",
+   evidence:"영어 면접 백지복습 02", limits:"기능 추가는 설계 변화일 뿐, 동기·학습 효과는 자료가 있을 때만 말하기. RPISD 전체 절차 수행과 피드백 원리 적용을 구분",
+   followup:"What did you learn from this experience?"},
   {lang:"en",topic:"이론",question:"Please explain cognitive load theory.",
    keywords:"working memory is limited\nintrinsic vs. extraneous load\nreduce extraneous load so learners can focus on what matters",
    evidence:"", limits:"", followup:"How did you apply it in your class?"},
@@ -466,10 +708,10 @@ function render(){
   if (ui.needLogin){ app.innerHTML = viewLogin(); return; }
   const t = todayStr();
   const nDue = dueCards(t).length + rewritesDue(t).length;
-  const tabs = [["today","오늘"],["plan","일정"],["answers","답안"],["review","복습"],["iv","면접"],["docs","자료"]];
+  const tabs = [["today","오늘"],["plan","일정"],["answers","답안"],["exam","예상문제"],["review","복습"],["iv","면접"],["docs","자료"]];
   app.innerHTML = viewHeader() +
     `<nav class="tabs" role="tablist">${tabs.map(([k, l]) => `<button class="tab" role="tab" aria-selected="${ui.tab === k}" data-act="tab" data-tab="${k}">${l}${k === "review" && nDue ? `<span class="cnt">${nDue}</span>` : ""}</button>`).join("")}</nav>` +
-    `<main>${({today: viewToday, plan: viewPlan, answers: viewAnswers, review: viewReview, iv: viewIv, docs: viewDocs})[ui.tab]()}</main>`;
+    `<main>${({today: viewToday, plan: viewPlan, answers: viewAnswers, review: viewReview, iv: viewIv, docs: viewDocs, exam: viewExam})[ui.tab]()}</main>`;
   updateTimerEl();
 }
 
@@ -572,7 +814,9 @@ function viewPlan(){
 const spareList = () => S.tasks.filter(x => x.kind === "여유").sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0));
 function refBtn(ref){
   if (!ref) return "";
-  const [id, anchor] = ref.split("#"); const m = MATERIALS.find(d => d.id === id); if (!m) return "";
+  const [id, anchor] = ref.split("#");
+  if (id === "q") return `<button class="link" data-act="goto-q" data-q="${esc(anchor)}">예상문제 열기</button>`;
+  const m = MATERIALS.find(d => d.id === id); if (!m) return "";
   return `<button class="link" data-act="open-doc" data-doc="${esc(id)}" data-anchor="${esc(anchor ? "#" + anchor : "")}">열기</button>`;
 }
 function viewSpare(edit){
@@ -592,6 +836,7 @@ function viewSpare(edit){
   return `<section class="panel"><div class="ph"><h2>시간이 남으면</h2><span class="muted">${edit ? "순서가 곧 우선순위예요" : `위에서부터 하나씩, 남은 ${todo.length}개`}</span></div>
     ${todo.length || edit ? `<ol class="spare">${shown.join("")}</ol>` : `<p class="empty">목록을 다 했어요. 일정 탭에서 새로 추가할 수 있어요.</p>`}
     ${rest.length ? `<details><summary>나머지 ${rest.length}개 보기</summary><ol class="spare">${rest.join("")}</ol></details>` : ""}
+    ${edit ? `<div class="row"><button class="btn sm ghost" data-act="sync-spare">추천 목록으로 업데이트</button><span class="muted">새 항목을 넣고 추천 순서로 다시 정렬해요. 직접 추가한 항목은 맨 아래로 가요.</span></div>` : ""}
     ${edit ? `<div class="inline"><input id="sp-title" placeholder="예: [5장] 루브릭 기본 요소 4가지 백지로 쓰기"><input id="sp-min" type="number" min="0" placeholder="분" style="max-width:80px;flex:0 0 80px"><button class="btn sm" data-act="add-spare">맨 아래에 추가</button></div>` : ""}</section>`;
 }
 
@@ -623,6 +868,32 @@ function viewDocs(){
   return h;
 }
 
+/* ---------- 예상문제 ---------- */
+function viewExam(){
+  const f = ui.examFilter || "all";
+  const list = EXAM_QS.filter(q => f === "all" || q.kind.includes(f));
+  let h = `<section class="panel"><div class="ph"><h2>예상문제</h2><span class="muted">문제를 보고 먼저 개요를 써 본 뒤 펼쳐 보세요</span>
+    <span class="seg" style="margin-left:auto">${[["all","전체"],["필답","필답"],["면접","면접"]].map(([k, l]) => `<button aria-pressed="${f === k}" data-act="exam-filter" data-v="${k}">${l}</button>`).join("")}</span></div>
+    <p class="hint">출처: 미래학교 1장(조영환), 미래교육 II 4·5·8·9장, 교육공학과 수업 12장. 교재에 없는 연결·평가는 '참고'에 따로 표시했어요.</p></section>`;
+  for (const q of list){
+    const n = EXAM_QS.indexOf(q) + 1;
+    const mine = S.answers.filter(a => a.question === q.q);
+    const best = mine.length ? Math.max(...mine.map(a => a.level ?? 0)) : null;
+    h += `<section class="panel" id="exam-${q.id}">
+      <div class="ph"><h2>${n}.</h2><span class="kind ${q.kind.includes("면접") ? "k-iv" : "k-exam"}">${esc(q.kind)}</span><span class="kind">${esc(q.axis)}</span><span class="muted">${esc(q.src)}${q.page ? `, ${esc(q.page)}` : ""}</span></div>
+      <p class="flash" style="margin:0 0 10px"><span class="front" style="display:block">${esc(q.q)}</span></p>
+      <details class="entry"><summary><b>출제 의도</b></summary><div class="body pre">${esc(q.intent)}</div></details>
+      <details class="entry"><summary><b>키워드 (채점 포인트)</b></summary><div class="body"><ul class="plain">${q.kw.map(k => `<li>${esc(k)}</li>`).join("")}</ul></div></details>
+      <details class="entry"><summary><b>예상 답안</b></summary><div class="body pre">${esc(q.ans)}</div></details>
+      ${q.link ? `<details class="entry"><summary><b>내 연구·면접 연결</b></summary><div class="body pre">${esc(q.link)}</div></details>` : ""}
+      ${q.note ? `<p class="hint" style="margin-top:8px">참고: ${esc(q.note)}</p>` : ""}
+      <div class="tacts" style="margin-top:10px"><button class="btn sm" data-act="exam-write" data-q="${q.id}">이 문제로 답안 쓰기</button>
+        <span class="muted">${mine.length ? `쓴 답안 ${mine.length}편, 최고 <span class="lv lv${best}">${LEVELS[best]}</span>` : "아직 쓴 답안 없음"}</span></div>
+    </section>`;
+  }
+  return h;
+}
+
 /* ---------- 답안 ---------- */
 function timerSec(){ const tm = ui.timer; return Math.floor((tm.acc + (tm.start ? Date.now() - tm.start : 0)) / 1000); }
 function updateTimerEl(){ const el = document.getElementById("a-clock"); if (!el) return; const s = timerSec(); el.textContent = clock(s); el.classList.toggle("over", s > CONFIG.EXAM_MINUTES * 60); const b = document.getElementById("a-tbtn"); if (b) b.textContent = ui.timer.start ? "정지" : (s ? "이어서 시작" : "시작"); }
@@ -630,7 +901,8 @@ function updateTimerEl(){ const el = document.getElementById("a-clock"); if (!el
 function viewAnswers(){
   const t = todayStr();
   const e = ui.editAnswer ? find("answers", ui.editAnswer) : null;
-  const v = e || {date: t, axis: AXES[0], question: "", minutes: "", level: 1, deductions: [], outline: "", feedback: "", rewrite_date: addDays(t, 3)};
+  const d = ui.answerDraft;
+  const v = e || (d ? {date: t, axis: d.axis, question: d.question, minutes: "", level: 1, deductions: [], outline: "", feedback: "", rewrite_date: addDays(t, 3)} : null) || {date: t, axis: AXES[0], question: "", minutes: "", level: 1, deductions: [], outline: "", feedback: "", rewrite_date: addDays(t, 3)};
   let h = `<section class="panel"><div class="ph"><h2>${e ? "답안 기록 수정" : "답안 기록"}</h2><span class="muted">점수보다 감점 원인과 다시 쓸 날을 남겨요</span></div>
     <div class="timer"><span class="clock" id="a-clock">0:00</span><span class="muted">목표 ${CONFIG.EXAM_MINUTES}분</span>
       <button class="btn sm go" id="a-tbtn" data-act="timer-toggle">시작</button><button class="btn sm ghost" data-act="timer-reset">초기화</button></div>
@@ -648,7 +920,7 @@ function viewAnswers(){
       <label class="field">자기채점 피드백 (빠진 키워드, 고칠 논리)<textarea id="a-fb" rows="3">${esc(v.feedback)}</textarea></label>
     </div>
     <div class="row"><label class="field" style="max-width:200px">다시 쓸 날<input type="date" id="a-rew" value="${esc(v.rewrite_date || "")}"></label></div>
-    <div class="row"><button class="btn" data-act="save-answer">${e ? "수정 저장" : "답안 기록 저장"}</button>${e ? `<button class="btn ghost" data-act="cancel-answer">취소</button>` : ""}</div></section>`;
+    <div class="row"><button class="btn" data-act="save-answer">${e ? "수정 저장" : "답안 기록 저장"}</button>${e || ui.answerDraft ? `<button class="btn ghost" data-act="cancel-answer">취소</button>` : ""}</div></section>`;
   const list = [...S.answers].sort((a, b) => (b.date || "").localeCompare(a.date || ""));
   h += `<section class="panel"><div class="ph"><h2>쓴 답안</h2><span class="muted">${list.length}편</span></div>`;
   h += list.length ? list.map(a => `<details class="entry"><summary><span class="muted">${a.date ? md(a.date) : ""}</span><span class="lv lv${a.level ?? 0}">${LEVELS[a.level ?? 0]}</span><b>${esc(a.axis)}</b><span>${esc(a.question)}</span>${a.rewrite_date && !a.rewrite_done ? `<span class="muted">다시 쓰기 ${md(a.rewrite_date)}</span>` : ""}</summary>
@@ -730,7 +1002,7 @@ function viewReview(){
 
 /* ---------- 면접 ---------- */
 function viewIv(){
-  let h = docButtons(["sop", "report"]) + `<div class="row" style="margin:0 0 14px"><span class="seg"><button aria-pressed="${ui.ivMode === "practice"}" data-act="iv-mode" data-v="practice">즉답 연습</button><button aria-pressed="${ui.ivMode === "cards"}" data-act="iv-mode" data-v="cards">근거 카드</button></span></div>`;
+  let h = docButtons(["sop", "report", "en"]) + `<div class="row" style="margin:0 0 14px"><span class="seg"><button aria-pressed="${ui.ivMode === "practice"}" data-act="iv-mode" data-v="practice">즉답 연습</button><button aria-pressed="${ui.ivMode === "cards"}" data-act="iv-mode" data-v="cards">근거 카드</button></span></div>`;
   return h + (ui.ivMode === "cards" ? viewIvCards() : viewPractice());
 }
 
@@ -782,6 +1054,7 @@ function viewIvCards(){
     <div class="row"><button class="btn" data-act="save-iv">${e ? "수정 저장" : "카드 저장"}</button>${e ? `<button class="btn ghost" data-act="cancel-iv">취소</button>` : ""}</div></section>`;
   h += `<section class="panel"><div class="ph"><h2>카드 ${list.length}장</h2><span class="seg" style="margin-left:auto">${[["all","전체"],["ko","한국어"],["en","영어"]].map(([k, l]) => `<button aria-pressed="${ui.ivFilter === k}" data-act="iv-filter" data-v="${k}">${l}</button>`).join("")}</span></div>`;
   if (!S.interview.length) h += `<p class="empty">카드가 없어요. 오늘 탭에서 예상 질문 카드를 불러오거나 위에서 추가하세요.</p>`;
+  else if (SEED_IV.some(q => !S.interview.some(x => x.question === q.question))) h += `<div class="row" style="margin-bottom:8px"><button class="btn sm ghost" data-act="sync-iv">새 예상 질문 카드 추가</button></div>`;
   h += list.map(q => `<details class="entry"><summary><span class="kind ${q.lang === "en" ? "k-en" : "k-iv"}">${q.lang === "en" ? "영어" : "한국어"}</span>${q.topic ? `<span class="muted">${esc(q.topic)}</span>` : ""}<span>${esc(q.question)}</span><span class="muted">연습 ${q.practice_count || 0}회</span></summary>
     <div class="body">${lines(q.keywords).length ? `<div class="lab">키워드</div><ul class="plain">${lines(q.keywords).map(k => `<li>${esc(k)}</li>`).join("")}</ul>` : ""}
       ${q.evidence ? `<div class="lab">근거</div><div>${esc(q.evidence)}</div>` : ""}
@@ -888,6 +1161,26 @@ const actions = {
     const rows = SEED_SPARE.map(([title, ref, minutes], i) => ({date: null, slot: "—", kind: "여유", title, ref, minutes, done: false, note: "", sort: i}));
     const out = await db.insertMany("tasks", rows); S.tasks.push(...out); render(); toast("시간이 남으면 할 일을 불러왔어요");
   },
+  async "sync-spare"(b){
+    b.disabled = true;
+    const all = spareList(), byTitle = new Map(all.map(x => [x.title, x]));
+    const seedTitles = new Set(SEED_SPARE.map(r => r[0]));
+    for (let i = 0; i < SEED_SPARE.length; i++){
+      const [title, ref, minutes] = SEED_SPARE[i], ex = byTitle.get(title);
+      if (ex){ if (ex.sort !== i || ex.ref !== ref) await upd("tasks", ex.id, {sort: i, ref}); }
+      else await ins("tasks", {date: null, slot: "—", kind: "여유", title, ref, minutes, done: false, note: "", sort: i});
+    }
+    let k = 1000;
+    for (const x of all.filter(x => !seedTitles.has(x.title))) await upd("tasks", x.id, {sort: k++});
+    render(); toast("추천 목록으로 업데이트했어요 (완료 표시는 그대로)");
+  },
+  async "sync-iv"(b){
+    b.disabled = true;
+    const have = new Set(S.interview.map(q => q.question));
+    const add = SEED_IV.filter(q => !have.has(q.question)).map(q => ({...q, practice_count: 0}));
+    if (add.length){ const out = await db.insertMany("interview", add); S.interview.push(...out); }
+    render(); toast(add.length ? `새 질문 카드 ${add.length}장을 추가했어요` : "추가할 새 카드가 없어요");
+  },
   async "add-spare"(){
     const title = val("sp-title"); if (!title) return toast("할 일을 적어 주세요");
     const all = spareList(); const sort = all.length ? Math.max(...all.map(x => x.sort ?? 0)) + 1 : 0;
@@ -901,6 +1194,16 @@ const actions = {
     endPractice(); ui.viewer = {id, url}; ui.tab = "docs"; render(); window.scrollTo(0, 0);
   },
   async "close-doc"(){ ui.viewer = null; render(); },
+  async "exam-filter"(b){ ui.examFilter = b.dataset.v; render(); },
+  async "exam-write"(b){
+    const q = EXAM_QS.find(x => x.id === b.dataset.q); if (!q) return;
+    ui.answerDraft = {question: q.q, axis: q.axis}; ui.editAnswer = null; actions["timer-reset"]();
+    ui.tab = "answers"; render(); window.scrollTo(0, 0); toast("문제를 넣어 두었어요. 타이머를 켜고 써 보세요");
+  },
+  async "goto-q"(b){
+    endPractice(); ui.examFilter = "all"; ui.tab = "exam"; render();
+    const el = document.getElementById("exam-" + b.dataset.q); if (el) el.scrollIntoView({block: "start"});
+  },
   async "seed-iv"(b){
     if (S.interview.length) return;
     b.disabled = true;
@@ -921,11 +1224,11 @@ const actions = {
       level: +val("a-level"), deductions: [...document.querySelectorAll(".a-ded:checked")].map(x => x.value),
       outline: val("a-outline"), feedback: val("a-fb"), rewrite_date: val("a-rew") || null};
     if (ui.editAnswer){ await upd("answers", ui.editAnswer, row); ui.editAnswer = null; toast("수정했어요"); }
-    else { await ins("answers", {...row, rewrite_done: false}); toast("답안 기록을 저장했어요"); }
+    else { await ins("answers", {...row, rewrite_done: false}); ui.answerDraft = null; toast("답안 기록을 저장했어요"); }
     actions["timer-reset"](); render();
   },
   async "edit-answer"(b, id){ ui.editAnswer = id; render(); window.scrollTo(0, 0); },
-  async "cancel-answer"(){ ui.editAnswer = null; render(); },
+  async "cancel-answer"(){ ui.editAnswer = null; ui.answerDraft = null; render(); },
   async "del-answer"(b, id){ if (!confirm("이 답안 기록을 삭제할까요?")) return; await rm("answers", id); render(); },
   async "rewrite-done"(b, id){ await upd("answers", id, {rewrite_done: true}); render(); toast("다시 쓰기 완료"); },
   async "make-card"(b, id){
