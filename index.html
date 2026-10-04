@@ -963,8 +963,8 @@ function resultView(att, q){
     ${st.length || imp.length ? `<div class="good">${st.map(x => `<p><b>${esc(x.point)}</b><br>${esc(x.why)}</p>`).join("")}
       ${imp.length ? `<div class="lab">이전보다 나아진 점</div>${imp.map(x => `<p><b>${esc(x.concept)}</b>: ${esc(x.before)} → ${esc(x.now)}</p>`).join("")}` : ""}</div>` : ""}
     ${A_(r.task_check).length ? `<div class="lab">과제 충족</div><ul class="plain">${A_(r.task_check).map(t => `<li><span class="met ${t.met ? "y" : "n"}">${t.met ? "충족" : "미충족"}</span> ${esc(t.task)}${t.comment ? ` <span class="muted">${esc(t.comment)}</span>` : ""}</li>`).join("")}</ul>` : ""}
-    ${A_(r.missing_keywords).length ? `<div class="lab">누락 키워드</div><div class="checks">${A_(r.missing_keywords).map(k => `<span class="ded">${esc(k)}</span>`).join("")}</div>` : ""}
-    ${A_(r.misconceptions).length ? `<div class="lab">오개념</div><ul class="plain">${A_(r.misconceptions).map(m => `<li><b>${esc(m.concept)}</b>: ${esc(m.what_was_wrong)}<br><span class="muted">바른 이해: ${esc(m.correct)}</span></li>`).join("")}</ul>` : ""}
+    ${A_(r.missing_keywords).length ? `<div class="lab">누락 키워드</div><div class="checks">${A_(r.missing_keywords).map(k => `<span class="ded">${esc(k)}</span><button class="link" data-act="daily-card" data-kind="miss" data-concept="${esc(k)}" data-q="${esc(q.question)}">오답 카드로</button>`).join("")}</div>` : ""}
+    ${A_(r.misconceptions).length ? `<div class="lab">오개념</div><ul class="plain">${A_(r.misconceptions).map(m => `<li><b>${esc(m.concept)}</b>: ${esc(m.what_was_wrong)}<br><span class="muted">바른 이해: ${esc(m.correct)}</span> <button class="link" data-act="daily-card" data-kind="mis" data-concept="${esc(m.concept)}" data-extra="${esc(m.correct)}" data-wrong="${esc(m.what_was_wrong)}">오답 카드로</button></li>`).join("")}</ul>` : ""}
     ${r.logic_feedback ? `<div class="lab">논리 피드백</div><div class="pre">${esc(r.logic_feedback)}</div>` : ""}
     ${r.rewrite_suggestion ? `<div class="lab">수정 제안 (가장 약한 문단)</div><div class="pre quote">${esc(r.rewrite_suggestion)}</div>` : ""}
     ${wr.length ? `<div class="lab">내일 출제에 반영될 개념</div><ul class="plain">${wr.map(w => `<li style="${ex.has(w.concept) ? "opacity:.5;text-decoration:line-through" : ""}"><b>${esc(w.concept)}</b> <span class="kind">${esc(w.type)}</span> ${w.note ? `<span class="muted">${esc(w.note)}</span>` : ""}
@@ -1079,25 +1079,59 @@ function viewAnswers(){
 }
 
 /* ---------- 복습 ---------- */
+/* ---------- 오답 카드: 문제를 보고 먼저 생각한 뒤 답안 확인 ---------- */
+function prqCards(){ const q = ui.prq; return q ? q.ids.map(id => find("cards", id)).filter(Boolean) : []; }
+function viewCards(){
+  const t = todayStr(), mode = ui.cardMode || "practice", due = dueCards(t);
+  let h = `<section class="panel" id="card-form"><div class="ph"><h2>오답 카드</h2>
+    <span class="seg" style="margin-left:auto">${[["practice", `연습하기${due.length ? ` (${due.length})` : ""}`], ["make", "만들기"], ["list", `전체 ${S.cards.length}장`]].map(([k, l]) => `<button aria-pressed="${mode === k}" data-act="card-mode" data-v="${k}">${l}</button>`).join("")}</span></div>`;
+  if (mode === "make"){
+    const ec = ui.editCard ? find("cards", ui.editCard) : null;
+    const v = ec || ui.cardDraft || {axis: AXES[0], front: "", back: "", variant: "", due: t};
+    h += `<p class="hint">${ec ? "카드를 고치고 있어요." : "틀린 문제를 내 말로 다시 묻고, 맞는 답을 적어 두세요. 연습할 때는 문제만 먼저 보여요."}</p>
+      <label class="field">문제 (앞면)<textarea id="c-front" rows="3" placeholder="예: 딕과 케리 모형의 한계를 RPISD가 어떻게 보완하는지 설명하시오.">${esc(v.front)}</textarea></label>
+      <label class="field" style="margin-top:10px">답안 (뒷면)<textarea id="c-back" rows="6" placeholder="맞는 답, 꼭 넣을 키워드, 내가 틀렸던 부분을 적어요.">${esc(v.back)}</textarea></label>
+      <details style="margin-top:8px"><summary>더 넣기 (축, 변형 문제, 처음 볼 날)</summary>
+        <div class="grid" style="margin-top:8px"><label class="field">축<select id="c-axis">${axisOpts(v.axis)}</select></label><label class="field">처음 볼 날<input type="date" id="c-due" value="${esc(v.due || t)}"></label></div>
+        <label class="field" style="margin-top:8px">변형 문제 (선택, 답을 본 뒤 한 번 더 생각할 질문)<input id="c-var" value="${esc(v.variant)}"></label></details>
+      <div class="row"><button class="btn go" data-act="save-card">${ec ? "수정 저장" : "카드 저장"}</button>${ec || ui.cardDraft ? `<button class="btn ghost" data-act="cancel-card">취소</button>` : ""}
+        ${ui.madeCount ? `<span class="muted">방금 ${ui.madeCount}장 만들었어요</span><button class="link" data-act="prq-start" data-v="due">바로 연습하기</button>` : ""}</div>`;
+  } else if (mode === "list"){
+    const all = [...S.cards].sort((x, y) => (x.due || "").localeCompare(y.due || ""));
+    h += all.length ? all.map(x => `<div class="entry"><div class="tline"><span class="kind">${esc(x.axis)}</span><span class="muted">다음 ${x.due ? md(x.due) : "-"}</span></div><div>${esc(x.front)}</div>
+      <div class="tacts"><button class="link" data-act="edit-card" data-id="${x.id}">수정</button><button class="link danger" data-act="del-card" data-id="${x.id}">삭제</button></div></div>`).join("")
+      : `<p class="empty">아직 카드가 없어요. '만들기'에서 추가하세요.</p>`;
+  } else {
+    const q = ui.prq, cards = prqCards();
+    if (!q || q.i >= cards.length){
+      if (q && cards.length) h += `<p class="hint">${cards.length}장을 모두 봤어요.</p>`;
+      h += `<div class="row"><button class="btn go" data-act="prq-start" data-v="due" ${due.length ? "" : "disabled"}>오늘 볼 카드 ${due.length}장 연습</button>
+        <button class="btn ghost" data-act="prq-start" data-v="all" ${S.cards.length ? "" : "disabled"}>전체 섞어서 연습</button></div>
+        ${!S.cards.length ? `<p class="empty">카드가 없어요. '만들기'에서 틀린 문제를 카드로 만들어 보세요.</p>` : ""}`;
+    } else {
+      const c = cards[q.i];
+      h += `<div class="flash"><div class="tline"><span class="kind">${esc(c.axis)}</span><span class="muted">${q.i + 1} / ${cards.length}</span></div>
+        <p class="front">${esc(c.front)}</p>
+        ${q.revealed ? `
+          <div class="grid" style="margin-top:12px">
+            ${q.attempt ? `<div><div class="lab">내가 먼저 쓴 답</div><div class="pre">${esc(q.attempt)}</div></div>` : ""}
+            <div><div class="lab">답안</div><div class="back" style="margin-top:4px;padding-top:0;border-top:0">${esc(c.back || "(답안이 비어 있어요. 수정에서 적어 두세요)")}</div></div></div>
+          ${c.variant ? `<p class="variant" style="margin-top:10px">한 번 더: ${esc(c.variant)}</p>` : ""}
+          <div class="lab" style="margin-top:12px">얼마나 답할 수 있었나요?</div>
+          <div class="row"><button class="btn sm ghost" data-act="prq-grade" data-g="again">틀림 (내일 다시)</button>
+            <button class="btn sm ghost" data-act="prq-grade" data-g="hard">애매 (3일 뒤)</button>
+            <button class="btn sm go" data-act="prq-grade" data-g="good">맞음</button>
+            <button class="link" data-act="edit-card" data-id="${c.id}" style="margin-left:auto">카드 수정</button></div>`
+        : `<label class="field" style="margin-top:10px">먼저 생각해 보세요 (적어 두면 답안과 나란히 비교돼요)<textarea id="prq-attempt" rows="4">${esc(q.attempt || "")}</textarea></label>
+          <div class="row"><button class="btn go" data-act="prq-reveal">답안 보기</button><button class="btn sm ghost" data-act="prq-skip">건너뛰기</button></div>`}
+      </div>`;
+    }
+  }
+  return h + `</section>`;
+}
 function viewReview(){
   const t = todayStr();
-  const due = dueCards(t);
-  if (ui.cardIdx == null || ui.cardIdx >= due.length) ui.cardIdx = 0;
-  const c = due[ui.cardIdx];
-  let h = `<section class="panel"><div class="ph"><h2>오늘 복습할 카드</h2><span class="muted">${due.length}장</span></div>`;
-  if (c){
-    h += `<div class="flash"><span class="muted">${esc(c.axis)}${due.length > 1 ? `, ${ui.cardIdx + 1} / ${due.length}` : ""}</span>
-      <p class="front">${esc(c.front)}</p>
-      ${c.variant ? `<p class="variant">변형 문제: ${esc(c.variant)}</p>` : ""}
-      ${ui.revealed ? `<div class="back">${esc(c.back || "(정리한 답이 없어요)")}</div>
-        <div class="row"><button class="btn sm ghost" data-act="grade" data-g="again" data-id="${c.id}">다시 (내일)</button>
-          <button class="btn sm ghost" data-act="grade" data-g="hard" data-id="${c.id}">애매 (3일 뒤)</button>
-          <button class="btn sm go" data-act="grade" data-g="good" data-id="${c.id}">답할 수 있음</button></div>`
-        : `<div class="row"><button class="btn sm" data-act="reveal">가린 답 보기</button>${due.length > 1 ? `<button class="btn sm ghost" data-act="skip-card">다음 카드</button>` : ""}</div>`}
-    </div>`;
-  } else h += `<p class="empty">오늘 볼 카드가 없어요. 답안 탭에서 감점 원인을 카드로 만들 수 있어요.</p>`;
-  h += `</section>`;
-
+  let h = viewCards();
   // 축 현황판
   h += `<section class="panel"><div class="ph"><h2>축별 현황</h2><span class="muted">지금 혼자 어디까지 쓸 수 있는지 골라 주세요</span></div><div class="tablewrap"><table class="axes"><thead><tr><th>축</th><th>지금 단계</th><th>답안</th><th>기록상 최고</th></tr></thead><tbody>`;
   for (const ax of AXES){
@@ -1107,23 +1141,6 @@ function viewReview(){
       <td>${as.length}편</td><td>${best == null ? `<span class="muted">없음</span>` : `<span class="lv lv${best}">${LEVELS[best]}</span>`}</td></tr>`;
   }
   h += `</tbody></table></div></section>`;
-
-  // 카드 작성
-  const ec = ui.editCard ? find("cards", ui.editCard) : null;
-  const cv = ec || ui.cardDraft || {axis: AXES[0], front: "", back: "", variant: "", due: addDays(t, 1)};
-  h += `<section class="panel" id="card-form"><div class="ph"><h2>${ec ? "카드 수정" : "오답 카드 만들기"}</h2></div>
-    <div class="grid"><label class="field">축<select id="c-axis">${axisOpts(cv.axis)}</select></label><label class="field">처음 볼 날<input type="date" id="c-due" value="${esc(cv.due || addDays(t, 1))}"></label></div>
-    <div class="grid" style="grid-template-columns:1fr;margin-top:10px">
-      <label class="field">앞면 (약점·질문)<textarea id="c-front" rows="2">${esc(cv.front)}</textarea></label>
-      <label class="field">뒷면 (맞는 내용·키워드)<textarea id="c-back" rows="3">${esc(cv.back)}</textarea></label>
-      <label class="field">변형 문제 한 줄 (선택)<input id="c-var" value="${esc(cv.variant)}"></label></div>
-    <div class="row"><button class="btn" data-act="save-card">${ec ? "수정 저장" : "카드 저장"}</button>${ec || ui.cardDraft ? `<button class="btn ghost" data-act="cancel-card">취소</button>` : ""}</div></section>`;
-
-  if (S.cards.length){
-    const all = [...S.cards].sort((a, b) => (a.due || "").localeCompare(b.due || ""));
-    h += `<section class="panel"><details><summary>전체 카드 ${all.length}장</summary>${all.map(x => `<div class="entry"><div class="tline"><span class="kind">${esc(x.axis)}</span><span class="muted">다음 ${x.due ? md(x.due) : "-"}</span></div><div>${esc(x.front)}</div>
-      <div class="tacts"><button class="link" data-act="edit-card" data-id="${x.id}">수정</button><button class="link danger" data-act="del-card" data-id="${x.id}">삭제</button></div></div>`).join("")}</details></section>`;
-  }
 
   // 요약 노트
   h += `<section class="panel"><div class="ph"><h2>요약 노트</h2><span class="muted">공부한 날마다 5분, 키워드 3~5개</span>
@@ -1401,8 +1418,8 @@ const actions = {
   async "rewrite-done"(b, id){ await upd("answers", id, {rewrite_done: true}); render(); toast("다시 쓰기 완료"); },
   async "make-card"(b, id){
     const a = find("answers", id);
-    ui.cardDraft = {axis: a.axis, front: `${(a.deductions || []).length ? `[${a.deductions.join(", ")}] ` : ""}${a.question}`, back: a.feedback || "", variant: "", due: addDays(todayStr(), 1)};
-    ui.editCard = null; ui.tab = "review"; render(); const f = document.getElementById("card-form"); if (f) f.scrollIntoView({block: "start"});
+    ui.cardDraft = {axis: a.axis, front: `${(a.deductions || []).length ? `[${a.deductions.join(", ")}] ` : ""}${a.question}`, back: a.feedback || "", variant: "", due: todayStr()};
+    ui.editCard = null; ui.cardMode = "make"; ui.tab = "review"; render(); const f = document.getElementById("card-form"); if (f) f.scrollIntoView({block: "start"});
   },
   // 복습
   async "reveal"(){ ui.revealed = true; render(); },
@@ -1414,12 +1431,34 @@ const actions = {
   },
   async "save-card"(){
     const front = val("c-front"); if (!front) return toast("앞면을 적어 주세요");
-    const row = {axis: val("c-axis"), front, back: val("c-back"), variant: val("c-var"), due: val("c-due") || addDays(todayStr(), 1)};
+    const row = {axis: val("c-axis"), front, back: document.getElementById("c-back").value.trim(), variant: val("c-var"), due: val("c-due") || todayStr()};
     if (ui.editCard){ await upd("cards", ui.editCard, row); ui.editCard = null; toast("수정했어요"); }
-    else { await ins("cards", {...row, interval_days: 1}); ui.cardDraft = null; toast("카드를 저장했어요"); }
+    else { await ins("cards", {...row, interval_days: 1}); ui.cardDraft = null; ui.madeCount = (ui.madeCount || 0) + 1; toast("카드를 저장했어요"); }
     render();
   },
-  async "edit-card"(b, id){ ui.editCard = id; ui.cardDraft = null; render(); const f = document.getElementById("card-form"); if (f) f.scrollIntoView({block: "start"}); },
+  async "edit-card"(b, id){ ui.editCard = id; ui.cardDraft = null; ui.cardMode = "make"; ui.tab = "review"; render(); const f = document.getElementById("card-form"); if (f) f.scrollIntoView({block: "start"}); },
+  async "card-mode"(b){ ui.cardMode = b.dataset.v; if (b.dataset.v !== "make"){ ui.editCard = null; } render(); },
+  async "prq-start"(b){
+    const t = todayStr(), ids = b.dataset.v === "all" ? shuffle(S.cards).map(c => c.id) : dueCards(t).map(c => c.id);
+    if (!ids.length) return toast("연습할 카드가 없어요");
+    ui.prq = {ids, i: 0, revealed: false, attempt: ""}; ui.cardMode = "practice"; ui.madeCount = 0; render();
+    const f = document.getElementById("card-form"); if (f) f.scrollIntoView({block: "start"});
+  },
+  async "prq-reveal"(){ const q = ui.prq; const el = document.getElementById("prq-attempt"); q.attempt = el ? el.value.trim() : ""; q.revealed = true; render(); },
+  async "prq-skip"(){ const q = ui.prq; q.i++; q.revealed = false; q.attempt = ""; render(); },
+  async "prq-grade"(b){
+    const q = ui.prq, c = prqCards()[q.i], t = todayStr(), g = b.dataset.g;
+    const iv = g === "again" ? 1 : g === "hard" ? 3 : Math.max(7, (c.interval_days || 1) * 2);
+    await upd("cards", c.id, {due: addDays(t, iv), interval_days: iv});
+    q.i++; q.revealed = false; q.attempt = ""; render();
+  },
+  async "daily-card"(b){
+    const kind = b.dataset.kind, concept = b.dataset.concept || "", extra = b.dataset.extra || "", qtext = b.dataset.q || "";
+    ui.cardDraft = kind === "mis"
+      ? {axis: AXES[4], front: `${concept}을(를) 바르게 설명하시오.`, back: `바른 이해: ${extra}\n\n(내가 틀렸던 부분: ${b.dataset.wrong || ""})`, variant: "", due: todayStr()}
+      : {axis: AXES[4], front: `'${concept}'을(를) 다음 문제의 답안 어디에, 어떻게 쓸 수 있는지 설명하시오.\n${qtext}`, back: "", variant: "", due: todayStr()};
+    ui.editCard = null; ui.cardMode = "make"; ui.tab = "review"; render(); window.scrollTo(0, 0); toast("내용을 채워 두었어요. 고쳐서 저장하세요");
+  },
   async "cancel-card"(){ ui.editCard = null; ui.cardDraft = null; render(); },
   async "del-card"(b, id){ if (!confirm("이 카드를 삭제할까요?")) return; await rm("cards", id); render(); },
   async "notes-view"(b){ ui.notesView = b.dataset.v; render(); },
