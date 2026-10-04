@@ -108,6 +108,18 @@ ol.spare{list-style:none;margin:0;padding:0;counter-reset:sp}
 .jumps{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
 .jumps button{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:3px 10px;font-size:.82rem;cursor:pointer;color:var(--ink)}
 .doclist{list-style:none;margin:0;padding:0}
+.score{font-family:var(--serif);font-size:2.8rem;font-weight:700;line-height:1}
+.score small{font-size:1rem;color:var(--muted);font-weight:400;margin-left:4px}
+.good{background:var(--green-soft);border-radius:8px;padding:10px 14px;margin:12px 0}
+.good p{margin:.3em 0}
+.err{color:var(--red);font-weight:500}
+mark.chk{background:#FFE58A;color:#3A2E00;padding:0 3px;border-radius:3px}
+.met{font-size:.75rem;padding:1px 8px;border-radius:10px;white-space:nowrap}
+.met.y{background:var(--green-soft);color:var(--green)} .met.n{background:var(--red-soft);color:var(--red)}
+.quote{border-left:3px solid var(--cobalt);padding-left:10px}
+.hist{width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:9px 0;cursor:pointer;display:flex;gap:10px;align-items:baseline;color:var(--ink)}
+.hist:first-child{border-top:0}
+.hist .qline{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .doclist li{padding:10px 0;border-top:1px solid var(--line)}
 .doclist li:first-child{border-top:0}
 .ttitle{margin-top:2px}
@@ -708,10 +720,10 @@ function render(){
   if (ui.needLogin){ app.innerHTML = viewLogin(); return; }
   const t = todayStr();
   const nDue = dueCards(t).length + rewritesDue(t).length;
-  const tabs = [["today","오늘"],["plan","일정"],["answers","답안"],["exam","예상문제"],["review","복습"],["iv","면접"],["docs","자료"]];
+  const tabs = [["today","오늘"],["plan","일정"],["daily","오늘의 문제"],["answers","답안"],["exam","예상문제"],["review","복습"],["iv","면접"],["docs","자료"]];
   app.innerHTML = viewHeader() +
     `<nav class="tabs" role="tablist">${tabs.map(([k, l]) => `<button class="tab" role="tab" aria-selected="${ui.tab === k}" data-act="tab" data-tab="${k}">${l}${k === "review" && nDue ? `<span class="cnt">${nDue}</span>` : ""}</button>`).join("")}</nav>` +
-    `<main>${({today: viewToday, plan: viewPlan, answers: viewAnswers, review: viewReview, iv: viewIv, docs: viewDocs, exam: viewExam})[ui.tab]()}</main>`;
+    `<main>${({today: viewToday, plan: viewPlan, answers: viewAnswers, review: viewReview, iv: viewIv, docs: viewDocs, exam: viewExam, daily: viewDaily})[ui.tab]()}</main>`;
   updateTimerEl();
 }
 
@@ -865,6 +877,99 @@ function viewDocs(){
   }
   h += `<section class="panel"><div class="ph"><h2>자료</h2></div><ul class="doclist">${MATERIALS.map(m => `<li><div><b>${esc(m.title)}</b> <span class="muted">${m.storage ? (sb ? "비공개 저장소" : "이 컴퓨터의 private-docs 폴더") : "함께 올린 파일"}</span></div>
     <div class="jumps">${(JUMPS[m.id] || [["처음부터", ""]]).map(([l, a]) => `<button data-act="open-doc" data-doc="${m.id}" data-anchor="${esc(a)}">${esc(l)}</button>`).join("")}</div></li>`).join("")}</ul></section>`;
+  return h;
+}
+
+/* ---------- 오늘의 문제 (GPT 출제·채점, Supabase Edge Function) ---------- */
+const DQ = () => (ui.daily = ui.daily || {loaded: false, loading: false, q: null, attempts: [], history: [], view: null, answer: "", start: null, saving: "", grading: false, error: ""});
+const A_ = v => (Array.isArray(v) ? v : []);
+const hl = t => esc(t).replace(/\[확인필요\]/g, '<mark class="chk">[확인필요]</mark>');
+const hm = iso => { const d = new Date(iso); return `${d.getMonth()+1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+async function fnCall(name, body){
+  const {data, error} = await sb.functions.invoke(name, {body});
+  if (error){ let msg = error.message; try { const j = await error.context.json(); if (j && j.error) msg = j.error; } catch(e){} throw new Error(msg); }
+  if (data && data.error) throw new Error(data.error);
+  return data;
+}
+async function dailyRefresh(){
+  const d = DQ();
+  if (d.q){ const a = await sb.from("exam_attempts").select("*").eq("question_id", d.q.id).order("created_at", {ascending: false}); if (a.error) throw a.error; d.attempts = a.data || []; }
+  const h = await sb.from("exam_questions").select("id,date,question,type,axis,exam_attempts(score,created_at)").order("date", {ascending: false}).limit(30);
+  if (h.error) throw h.error; d.history = h.data || [];
+}
+async function dailyLoad(){
+  const d = DQ(); if (!sb || d.loading) return;
+  d.loading = true; d.error = ""; render();
+  try {
+    const r = await fnCall("generate-question", {});
+    d.q = r.question; d.answer = d.q.draft || ""; d.start = Date.now();
+    await dailyRefresh(); d.loaded = true;
+  } catch(e){ d.error = e.message || String(e); }
+  d.loading = false; if (ui.tab === "daily") render();
+}
+function updateDailyClock(){
+  const el = document.getElementById("dq-clock"), d = ui.daily; if (!el || !d || !d.start) return;
+  const s = Math.floor((Date.now() - d.start) / 1000); el.textContent = clock(s); el.classList.toggle("over", s > 3600);
+}
+setInterval(updateDailyClock, 1000);
+function qBadges(q){
+  const t = {"1": "활용 방안형", "2": "모형 비평·개선형", "3": "상황 적용형"}[String(q.type)] || "";
+  return `${t ? `<span class="kind k-exam">${t}</span>` : ""}${q.axis ? `<span class="kind">축 ${esc(q.axis)}</span>` : ""}${q.difficulty ? `<span class="kind">${esc(q.difficulty)}</span>` : ""}`;
+}
+function qBlock(q){
+  return `<p class="flash" style="margin:0 0 10px"><span class="front" style="display:block">${esc(q.question)}</span></p>
+    ${A_(q.tasks).length ? `<ol style="margin:.3em 0;padding-left:1.4em">${A_(q.tasks).map(t => `<li>${esc(t)}</li>`).join("")}</ol>` : ""}
+    ${q.why_this_question ? `<p class="hint">${esc(q.why_this_question)}</p>` : ""}`;
+}
+function resultView(att, q){
+  const r = att.result || {}, ex = new Set(A_(att.excluded_concepts));
+  const st = A_(r.strengths), imp = A_(r.improvements_vs_before), wr = A_(r.wrong_concepts_for_tomorrow);
+  return `<section class="panel" id="att-${att.id}"><div class="ph"><h2>채점 결과</h2><span class="muted">${hm(att.created_at)}</span></div>
+    <div class="score">${esc(r.score ?? att.score)}<small>/ 100</small></div>
+    ${st.length || imp.length ? `<div class="good">${st.map(x => `<p><b>${esc(x.point)}</b><br>${esc(x.why)}</p>`).join("")}
+      ${imp.length ? `<div class="lab">이전보다 나아진 점</div>${imp.map(x => `<p><b>${esc(x.concept)}</b>: ${esc(x.before)} → ${esc(x.now)}</p>`).join("")}` : ""}</div>` : ""}
+    ${A_(r.task_check).length ? `<div class="lab">과제 충족</div><ul class="plain">${A_(r.task_check).map(t => `<li><span class="met ${t.met ? "y" : "n"}">${t.met ? "충족" : "미충족"}</span> ${esc(t.task)}${t.comment ? ` <span class="muted">${esc(t.comment)}</span>` : ""}</li>`).join("")}</ul>` : ""}
+    ${A_(r.missing_keywords).length ? `<div class="lab">누락 키워드</div><div class="checks">${A_(r.missing_keywords).map(k => `<span class="ded">${esc(k)}</span>`).join("")}</div>` : ""}
+    ${A_(r.misconceptions).length ? `<div class="lab">오개념</div><ul class="plain">${A_(r.misconceptions).map(m => `<li><b>${esc(m.concept)}</b>: ${esc(m.what_was_wrong)}<br><span class="muted">바른 이해: ${esc(m.correct)}</span></li>`).join("")}</ul>` : ""}
+    ${r.logic_feedback ? `<div class="lab">논리 피드백</div><div class="pre">${esc(r.logic_feedback)}</div>` : ""}
+    ${r.rewrite_suggestion ? `<div class="lab">수정 제안 (가장 약한 문단)</div><div class="pre quote">${esc(r.rewrite_suggestion)}</div>` : ""}
+    ${wr.length ? `<div class="lab">내일 출제에 반영될 개념</div><ul class="plain">${wr.map(w => `<li style="${ex.has(w.concept) ? "opacity:.5;text-decoration:line-through" : ""}"><b>${esc(w.concept)}</b> <span class="kind">${esc(w.type)}</span> ${w.note ? `<span class="muted">${esc(w.note)}</span>` : ""}
+        <button class="link" data-act="daily-exclude" data-att="${att.id}" data-concept="${esc(w.concept)}">${ex.has(w.concept) ? "다시 반영" : "내일 반영 안 함"}</button></li>`).join("")}</ul>
+      <p class="hint">채점이 틀렸다고 생각되는 개념은 '내일 반영 안 함'을 누르세요. 가장 최근 채점 결과만 다음 출제에 쓰여요.</p>` : ""}
+    <details class="entry"><summary><b>기대 키워드·모범 답안 개요</b></summary><div class="body">
+      <div class="checks" style="margin-bottom:8px">${A_(q.expected_keywords).map(k => `<span class="kind">${hl(k)}</span>`).join("")}</div>
+      <div class="pre">${hl(q.answer_outline || "")}</div></div></details>
+  </section>`;
+}
+function viewDaily(){
+  if (!sb) return `<section class="panel"><p class="hint">오늘의 문제는 Supabase에 로그인한 상태에서만 쓸 수 있어요.</p></section>`;
+  const d = DQ();
+  if (!d.loaded && !d.loading && !d.error) setTimeout(dailyLoad, 0);
+  if (d.view) return viewDailyDetail();
+  let h = "";
+  if (d.loading) h += `<section class="panel"><p class="hint">오늘의 문제를 불러오는 중이에요. 새로 출제할 때는 20~40초 걸릴 수 있어요.</p></section>`;
+  if (d.error) h += `<section class="panel"><p class="err">${esc(d.error)}</p><div class="row"><button class="btn sm" data-act="daily-retry">다시 시도</button></div></section>`;
+  if (d.q){
+    const q = d.q, last = d.attempts[0];
+    h += `<section class="panel"><div class="ph"><h2>${md(q.date)} 오늘의 문제</h2>${qBadges(q)}</div>${qBlock(q)}</section>
+      <section class="panel"><div class="ph"><h2>내 답안</h2><span class="clock" id="dq-clock">${clock(Math.floor((Date.now() - (d.start || Date.now())) / 1000))}</span><span class="muted">목표 60분</span><span class="muted" id="dq-save" style="margin-left:auto">${esc(d.saving)}</span></div>
+      <div class="field"><textarea id="dq-answer" rows="16" placeholder="서론 - 본론(과제별) - 결론으로 써 보세요. 쓰는 중에는 자동으로 임시 저장돼요.">${esc(d.answer)}</textarea></div>
+      <div class="row"><button class="btn go" data-act="daily-submit" ${d.grading ? "disabled" : ""}>${d.grading ? "채점 중… (30초 정도)" : (last ? "다시 제출해서 채점" : "제출하고 채점받기")}</button><span class="muted" id="dq-count">${d.answer.length}자</span></div></section>`;
+    if (last) h += resultView(last, q);
+    if (d.attempts.length > 1) h += `<section class="panel"><details><summary>오늘 앞서 받은 채점 ${d.attempts.length - 1}회</summary>${d.attempts.slice(1).map(a => `<div class="entry"><span class="muted">${hm(a.created_at)}</span> <b>${esc(a.score)}점</b></div>`).join("")}</details></section>`;
+  }
+  h += `<section class="panel"><div class="ph"><h2>지난 기록</h2></div>${d.history.length ? d.history.map(x => {
+      const sc = A_(x.exam_attempts).sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
+      return `<button class="hist" data-act="daily-open" data-q="${x.id}"><span class="muted">${md(x.date)}</span><b>${sc ? esc(sc.score) + "점" : "미채점"}</b><span class="qline">${esc(x.question)}</span></button>`;
+    }).join("") : `<p class="empty">아직 기록이 없어요.</p>`}</section>`;
+  return h;
+}
+function viewDailyDetail(){
+  const v = ui.daily.view, q = v.q;
+  let h = `<div class="row" style="margin:0 0 12px"><button class="btn sm ghost" data-act="daily-back">← 오늘의 문제로</button></div>
+    <section class="panel"><div class="ph"><h2>${md(q.date)} 문제</h2>${qBadges(q)}</div>${qBlock(q)}</section>`;
+  if (!v.attempts.length) h += `<section class="panel"><p class="empty">이 문제는 채점 기록이 없어요.</p>${q.draft ? `<div class="lab">임시 저장된 답안</div><div class="pre">${esc(q.draft)}</div>` : ""}</section>`;
+  for (const a of v.attempts) h += `<section class="panel"><div class="ph"><h2>내 답안</h2><span class="muted">${hm(a.created_at)}</span></div><div class="pre">${esc(a.answer)}</div></section>` + resultView(a, q);
   return h;
 }
 
@@ -1194,6 +1299,33 @@ const actions = {
     endPractice(); ui.viewer = {id, url}; ui.tab = "docs"; render(); window.scrollTo(0, 0);
   },
   async "close-doc"(){ ui.viewer = null; render(); },
+  async "daily-retry"(){ const d = DQ(); d.error = ""; d.loaded = false; await dailyLoad(); },
+  async "daily-submit"(b){
+    const d = DQ(), el = document.getElementById("dq-answer"); if (el) d.answer = el.value;
+    if (d.answer.trim().length < 30) return toast("답안을 조금 더 쓴 뒤 제출해 주세요");
+    d.grading = true; render();
+    try {
+      clearTimeout(d.saveT); await sb.from("exam_questions").update({draft: d.answer}).eq("id", d.q.id);
+      const r = await fnCall("grade-answer", {question_id: d.q.id, answer: d.answer});
+      d.attempts.unshift(r.attempt); await dailyRefresh();
+    } catch(e){ toast("채점하지 못했어요: " + (e.message || e)); }
+    d.grading = false; render();
+    const last = d.attempts[0]; if (last){ const el2 = document.getElementById("att-" + last.id); if (el2) el2.scrollIntoView({block: "start"}); }
+  },
+  async "daily-exclude"(b){
+    const d = DQ(), id = b.dataset.att, c = b.dataset.concept;
+    const pool = d.view ? d.view.attempts : d.attempts, att = pool.find(a => a.id === id); if (!att) return;
+    const ex = new Set(A_(att.excluded_concepts)); ex.has(c) ? ex.delete(c) : ex.add(c);
+    const {data, error} = await sb.from("exam_attempts").update({excluded_concepts: [...ex]}).eq("id", id).select("*").single();
+    if (error) throw error; Object.assign(att, data); render(); toast(ex.has(c) ? "내일 출제에서 뺐어요" : "다시 반영해요");
+  },
+  async "daily-open"(b){
+    const qid = b.dataset.q;
+    const q = await sb.from("exam_questions").select("*").eq("id", qid).single(); if (q.error) throw q.error;
+    const a = await sb.from("exam_attempts").select("*").eq("question_id", qid).order("created_at", {ascending: false}); if (a.error) throw a.error;
+    DQ().view = {q: q.data, attempts: a.data || []}; render(); window.scrollTo(0, 0);
+  },
+  async "daily-back"(){ DQ().view = null; render(); },
   async "exam-filter"(b){ ui.examFilter = b.dataset.v; render(); },
   async "exam-write"(b){
     const q = EXAM_QS.find(x => x.id === b.dataset.q); if (!q) return;
@@ -1321,6 +1453,18 @@ document.addEventListener("change", e => {
   const el = e.target.closest("[data-act]"); if (!el || el.tagName === "BUTTON") return;
   const f = changes[el.dataset.act]; if (f) guard(() => f(el));
 });
+document.addEventListener("input", e => {
+  if (e.target.id !== "dq-answer") return;
+  const d = DQ(); d.answer = e.target.value;
+  const c = document.getElementById("dq-count"); if (c) c.textContent = d.answer.length + "자";
+  clearTimeout(d.saveT);
+  d.saveT = setTimeout(async () => {
+    if (!d.q) return;
+    const {error} = await sb.from("exam_questions").update({draft: d.answer}).eq("id", d.q.id);
+    const now = new Date(); d.saving = error ? "임시 저장 실패" : `임시 저장 ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    const el = document.getElementById("dq-save"); if (el) el.textContent = d.saving;
+  }, 1500);
+});
 document.addEventListener("keydown", e => {
   if (e.key !== "Enter" || e.isComposing) return;
   const el = e.target;
@@ -1352,7 +1496,7 @@ async function boot(){
     sb = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
     sb.auth.onAuthStateChange((ev, session) => {
       if (session && !ui.ready) setTimeout(start, 0);
-      if (ev === "SIGNED_OUT"){ ui.ready = false; ui.needLogin = true; TABLES.forEach(t => S[t] = []); render(); }
+      if (ev === "SIGNED_OUT"){ ui.ready = false; ui.needLogin = true; ui.daily = null; TABLES.forEach(t => S[t] = []); render(); }
     });
     const {data: {session}} = await sb.auth.getSession();
     if (session) await start(); else if (!ui.ready && !ui.starting){ ui.needLogin = true; render(); }
